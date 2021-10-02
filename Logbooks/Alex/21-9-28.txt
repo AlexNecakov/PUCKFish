@@ -1,0 +1,52 @@
+Last night (9/27), we met with our clients, Andy and Anthony. Victoria took meeting minutes, I have written some q&as I asked during the meeting.
+
+
+Focus on making better tech to have less incidental impact on whales. (No replicating/reading whale sound)
+
+
+Shipboard interface is not our job
+
+
+Want more data collection overall, severe lack of that
+
+
+Tracking: temp, depth, ambient light, dissolved O2, current, salinity
+
+
+Likely use time will be 2-3 days on a charge, want 10 max
+
+
+Target polling rate: 1 min, but can be lower if power budget doesn't work out
+
+
+Transmitting only when surfaced, radio is garbage underwater
+
+
+Speed needs to be fast during surfaced time to transmit
+
+
+1MB at 50kb/s from 50ft away
+
+
+Unit lifetime should be 3-5 years
+
+
+Operate at 1100 ft
+
+
+Ships have Marine Batteries (waterproof lead acid), to charge unit/power base station
+
+
+No existing SW to hook into, API we build can be very flexible
+
+
+Target format is CSV for data
+
+
+Header attached by shipboard interface (including GPS)
+
+
+Need to detect when submerged/surfaced
+
+
+Andy and Anthony will offer free boat rides
