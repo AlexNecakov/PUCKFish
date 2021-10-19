@@ -1,0 +1,58 @@
+We had a working meeting on 10/12 discussing the PDRR report, Shark Tank, and worked on sensor selection and other engineering design questions for the actual project.
+
+
+PDRRR is complete aside from citations, will be submitted soon.
+
+
+Peter was chosen as next team lead for Shark Tank night, I will be completing my Team Leader Report promptly.
+
+
+Next working meeting with Andy and Anthony scheduled for Monday night (10/18)
+
+
+
+
+
+Worked with whole team on figuring out design constraints based on the ECE challenges in the design
+
+
+Discussed waterproofing, sensor, controller, transmission, and power requirements
+
+
+Delegated responsibilities for the ME and ECE team members to work on
+
+
+Lead discussion on different battery options/requirements for charging or replaceable batteries
+
+
+Cover required for recharge port, must be water proofed
+
+
+Replaceable battery may introduce additional complexity in shell that will prevent total pressure protection
+
+
+Will noted issue with IMU as the device will be tethered in an abnormal way to the trap line, preventing full water current sensing in many cases
+
+
+Investigating existing technologies for underwater current sensing
+
+
+Began sensor research with Ammar on solutions for remaining sensors
+
+
+Most can be done with cheap out of box components, except dissolved oxygen
+
+
+Existing solutions for sensing it are very expensive (> $160), looking at developing own sensor
+
+
+Optical and electric solutions exist to measure dissolved O2
+
+
+Electrical may be challenging due to changing conductivity of water with salinity levels
+
+
+Optical is very expensive in price and power budget
+
+
+Goal of finding preliminary sensor selection by Monday to have a power budget and first order size estimate for MEs
