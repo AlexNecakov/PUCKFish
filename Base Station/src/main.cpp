@@ -6,26 +6,27 @@
 //  ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <math.h>
-#include <Adafruit_FXOS8700.h>
-#include <Adafruit_FXAS21002C.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <RH_RF95.h>
 
 // for feather m0 RFM9x
 #define RFM95_CS 8
 #define RFM95_RST 4
 #define RFM95_INT 3
 
-// Change to 915.0 or other frequency, must match TX's freq!
+// Change to 434.0 or other frequency, must match TX's freq!
 #define RF95_FREQ 915.0
 
+// Singleton instance of the radio driver
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
-Adafruit_FXOS8700 accelmag = Adafruit_FXOS8700(0x8700A, 0x8700B);
-
-float packetnum = 0;
 
 void setup()
 {
+    pinMode(RFM95_RST, OUTPUT);
+    digitalWrite(RFM95_RST, HIGH);
+
     Serial.begin(9600);
     delay(5000);
 
@@ -52,41 +53,40 @@ void setup()
         while (1)
             ;
     }
-    Serial.print("Set Freq to: %f", RF95_FREQ);
-    
-    rf95.setTxPower(23, false);
+    Serial.print("Set Freq to: %f",RF95_FREQ);
 
-    if (!accelmag.begin(ACCEL_RANGE_4G))
-    {
-        Serial.println("Ooops, no FXOS8700 detected ... Check your wiring!");
-        while (1)
-            ;
-    }
+    // The default transmitter power is 13dBm, using PA_BOOST.
+    // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
+    // you can set transmitter powers from 5 to 23 dBm:
+    rf95.setTxPower(23, false);
 }
+
+float packetnum = 0;
 
 void loop()
 {
-    delay(1000); // Wait 1 second between transmits
+    if (rf95.available())
+    {
+        // Should be a message for us now
+        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+        uint8_t len = sizeof(buf);
 
-    sensors_event_t aevent, mevent;
-    accelmag.getEvent(&aevent, &mevent);
+        if (rf95.recv(buf, &len))
+        {
+            float *rbuf = (float *)buf;
 
-    //Display the accel results (acceleration is measured in m/s^2)
-    Serial.print("A ");
-    Serial.print("X: ");
-    Serial.print(aevent.acceleration.x, 4);
-    Serial.print("  ");
-    Serial.print("Y: ");
-    Serial.print(aevent.acceleration.y, 4);
-    Serial.print("  ");
-    Serial.print("Z: ");
-    Serial.print(aevent.acceleration.z, 4);
-    Serial.print("  ");
-    Serial.println("m/s^2");
-
-    float radiopacket[20] = {packetnum++, (float)millis() / 1000, aevent.acceleration.x, aevent.acceleration.y, aevent.acceleration.z};
-
-    Serial.println("Sending...");
-    delay(10);
-    rf95.send((uint8_t *)radiopacket, sizeof(radiopacket) * 4);
+            Serial.print("Got: ");
+            Serial.println("Packet #: " + (String)rbuf[0]);
+            Serial.println("Seconds: " + (String)rbuf[1]);
+            Serial.println("Accel X: " + (String)rbuf[2]);
+            Serial.println("Accel Y: " + (String)rbuf[3]);
+            Serial.println("Accel Z: " + (String)rbuf[4]);
+            Serial.print("RSSI: ");
+            Serial.println(rf95.lastRssi(), DEC);
+        }
+        else
+        {
+            Serial.println("Receive failed");
+        }
+    }
 }
