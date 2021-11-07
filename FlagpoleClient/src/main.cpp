@@ -6,9 +6,9 @@
 //  ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <math.h>
 #include <Adafruit_FXOS8700.h>
+#include <RH_RF95.h>
 
 // for feather m0 RFM9x
 #define RFM95_CS 8
@@ -51,16 +51,18 @@ void setup()
         while (1)
             ;
     }
-    Serial.print("Set Freq to: %f", RF95_FREQ);
+    Serial.print("Set Freq to: ");
+    Serial.println(RF95_FREQ);
     
     rf95.setTxPower(23, false);
 
-    if (!accelmag.begin(ACCEL_RANGE_4G))
+    if (!accelmag.begin())
     {
         Serial.println("Ooops, no FXOS8700 detected ... Check your wiring!");
         while (1)
             ;
     }
+    Serial.println("IMU init OK!");
 }
 
 void loop()
@@ -86,6 +88,7 @@ void loop()
     float radiopacket[20] = {packetnum++, (float)millis() / 1000, aevent.acceleration.x, aevent.acceleration.y, aevent.acceleration.z};
 
     Serial.println("Sending...");
+    Serial.println();
     delay(10);
     rf95.send((uint8_t *)radiopacket, sizeof(radiopacket) * 4);
 }

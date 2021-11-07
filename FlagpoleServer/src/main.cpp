@@ -53,7 +53,8 @@ void setup()
         while (1)
             ;
     }
-    Serial.print("Set Freq to: %f",RF95_FREQ);
+    Serial.print("Set Freq to: ");
+    Serial.println(RF95_FREQ);
 
     // The default transmitter power is 13dBm, using PA_BOOST.
     // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then
