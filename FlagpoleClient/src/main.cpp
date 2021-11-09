@@ -1,9 +1,19 @@
-//  ███████╗███████╗ █████╗ ████████╗██╗  ██╗███████╗██████╗     ██╗      ██████╗ ██████╗  █████╗
-//  ██╔════╝██╔════╝██╔══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗    ██║     ██╔═══██╗██╔══██╗██╔══██╗
-//  █████╗  █████╗  ███████║   ██║   ███████║█████╗  ██████╔╝    ██║     ██║   ██║██████╔╝███████║
-//  ██╔══╝  ██╔══╝  ██╔══██║   ██║   ██╔══██║██╔══╝  ██╔══██╗    ██║     ██║   ██║██╔══██╗██╔══██║
-//  ██║     ███████╗██║  ██║   ██║   ██║  ██║███████╗██║  ██║    ███████╗╚██████╔╝██║  ██║██║  ██║
-//  ╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+// PPPPPPPPPPPPPPPPP   UUUUUUUU     UUUUUUUU       CCCCCCCCCCCCCKKKKKKKKK    KKKKKKKFFFFFFFFFFFFFFFFFFFFFF  iiii                  hhhhhhh             
+// P::::::::::::::::P  U::::::U     U::::::U    CCC::::::::::::CK:::::::K    K:::::KF::::::::::::::::::::F i::::i                 h:::::h             
+// P::::::PPPPPP:::::P U::::::U     U::::::U  CC:::::::::::::::CK:::::::K    K:::::KF::::::::::::::::::::F  iiii                  h:::::h             
+// PP:::::P     P:::::PUU:::::U     U:::::UU C:::::CCCCCCCC::::CK:::::::K   K::::::KFF::::::FFFFFFFFF::::F                        h:::::h             
+//   P::::P     P:::::P U:::::U     U:::::U C:::::C       CCCCCCKK::::::K  K:::::KK   F:::::F       FFFFFFiiiiiii     ssssssssss   h::::h hhhhh       
+//   P::::P     P:::::P U:::::D     D:::::UC:::::C                K:::::K K:::::K     F:::::F             i:::::i   ss::::::::::s  h::::hh:::::hhh    
+//   P::::PPPPPP:::::P  U:::::D     D:::::UC:::::C                K::::::K:::::K      F::::::FFFFFFFFFF    i::::i ss:::::::::::::s h::::::::::::::hh  
+//   P:::::::::::::PP   U:::::D     D:::::UC:::::C                K:::::::::::K       F:::::::::::::::F    i::::i s::::::ssss:::::sh:::::::hhh::::::h 
+//   P::::PPPPPPPPP     U:::::D     D:::::UC:::::C                K:::::::::::K       F:::::::::::::::F    i::::i  s:::::s  ssssss h::::::h   h::::::h
+//   P::::P             U:::::D     D:::::UC:::::C                K::::::K:::::K      F::::::FFFFFFFFFF    i::::i    s::::::s      h:::::h     h:::::h
+//   P::::P             U:::::D     D:::::UC:::::C                K:::::K K:::::K     F:::::F              i::::i       s::::::s   h:::::h     h:::::h
+//   P::::P             U::::::U   U::::::U C:::::C       CCCCCCKK::::::K  K:::::KK   F:::::F              i::::i ssssss   s:::::s h:::::h     h:::::h
+// PP::::::PP           U:::::::UUU:::::::U  C:::::CCCCCCCC::::CK:::::::K   K::::::KFF:::::::FF           i::::::is:::::ssss::::::sh:::::h     h:::::h
+// P::::::::P            UU:::::::::::::UU    CC:::::::::::::::CK:::::::K    K:::::KF::::::::FF           i::::::is::::::::::::::s h:::::h     h:::::h
+// P::::::::P              UU:::::::::UU        CCC::::::::::::CK:::::::K    K:::::KF::::::::FF           i::::::i s:::::::::::ss  h:::::h     h:::::h
+// PPPPPPPPPP                UUUUUUUUU             CCCCCCCCCCCCCKKKKKKKKK    KKKKKKKFFFFFFFFFFF           iiiiiiii  sssssssssss    hhhhhhh     hhhhhhh
 
 #include <Arduino.h>
 #include <math.h>
