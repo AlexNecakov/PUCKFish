@@ -24,6 +24,7 @@
 #define RFM95_CS 8
 #define RFM95_RST 4
 #define RFM95_INT 3
+#define VBATPIN A7
 
 // Change to 915.0 or other frequency, must match TX's freq!
 #define RF95_FREQ 915.0
@@ -101,4 +102,15 @@ void loop()
     Serial.println();
     delay(10);
     rf95.send((uint8_t *)radiopacket, sizeof(radiopacket) * 4);
+
+   
+    float measuredvbat = analogRead(VBATPIN);
+    measuredvbat *= 2;    // we divided by 2, so multiply back
+    measuredvbat *= 3.3;  // Multiply by 3.3V, our reference voltage
+    measuredvbat /= 1024; // convert to voltage
+    Serial.print("VBat: " ); Serial.println(measuredvbat);
+
+    digitalWrite(13, HIGH);
+    delay(1000);
+    digitalWrite(13, LOW);
 }
