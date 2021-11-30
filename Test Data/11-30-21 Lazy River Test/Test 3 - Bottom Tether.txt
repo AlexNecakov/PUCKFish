@@ -1,0 +1,225 @@
+Got: Packet #: 643.00
+Seconds: 1302.23
+Accel X: 9.54
+Accel Y: -0.80
+Accel Z: 1.53
+Orient X: -0.16
+Orient Y: 0.01
+Orient Z: -0.01
+RSSI: -130
+Got: Packet #: 644.00
+Seconds: 1304.25
+Accel X: 9.63
+Accel Y: 0.20
+Accel Z: 1.21
+Orient X: -0.21
+Orient Y: 0.08
+Orient Z: -0.05
+RSSI: -123
+Got: Packet #: 645.00
+Seconds: 1306.27
+Accel X: 9.42
+Accel Y: 2.55
+Accel Z: 1.11
+Orient X: 0.60
+Orient Y: -0.01
+Orient Z: -0.29
+RSSI: -122
+Got: Packet #: 646.00
+Seconds: 1308.28
+Accel X: 9.43
+Accel Y: 1.25
+Accel Z: 1.50
+Orient X: 1.69
+Orient Y: -0.13
+Orient Z: -0.19
+RSSI: -115
+Got: Packet #: 647.00
+Seconds: 1310.30
+Accel X: 9.51
+Accel Y: -0.46
+Accel Z: 2.14
+Orient X: 0.12
+Orient Y: -0.03
+Orient Z: 0.08
+RSSI: -113
+Got: Packet #: 648.00
+Seconds: 1312.31
+Accel X: 9.50
+Accel Y: 0.48
+Accel Z: 1.63
+Orient X: -0.08
+Orient Y: 0.03
+Orient Z: 0.00
+RSSI: -113
+Got: Packet #: 649.00
+Seconds: 1314.33
+Accel X: 9.54
+Accel Y: 1.08
+Accel Z: 1.45
+Orient X: -0.28
+Orient Y: 0.03
+Orient Z: -0.30
+RSSI: -111
+Got: Packet #: 650.00
+Seconds: 1316.34
+Accel X: 9.52
+Accel Y: -0.45
+Accel Z: 1.77
+Orient X: 0.22
+Orient Y: 0.00
+Orient Z: -0.09
+RSSI: -112
+Got: Packet #: 651.00
+Seconds: 1318.36
+Accel X: 9.43
+Accel Y: 0.56
+Accel Z: 1.95
+Orient X: 0.11
+Orient Y: 0.06
+Orient Z: 0.17
+RSSI: -112
+Got: Packet #: 652.00
+Seconds: 1320.37
+Accel X: 9.04
+Accel Y: 2.97
+Accel Z: 1.67
+Orient X: 1.00
+Orient Y: 0.03
+Orient Z: 0.28
+RSSI: -116
+Got: Packet #: 653.00
+Seconds: 1322.39
+Accel X: 9.52
+Accel Y: 1.84
+Accel Z: 1.62
+Orient X: -0.76
+Orient Y: 0.05
+Orient Z: -0.41
+RSSI: -115
+Got: Packet #: 654.00
+Seconds: 1324.41
+Accel X: 9.37
+Accel Y: 0.56
+Accel Z: 1.85
+Orient X: 0.77
+Orient Y: -0.15
+Orient Z: -0.12
+RSSI: -121
+Got: Packet #: 655.00
+Seconds: 1326.42
+Accel X: 9.40
+Accel Y: 1.36
+Accel Z: 1.80
+Orient X: 0.13
+Orient Y: -0.00
+Orient Z: -0.06
+RSSI: -115
+Got: Packet #: 656.00
+Seconds: 1328.44
+Accel X: 9.41
+Accel Y: 1.31
+Accel Z: 1.95
+Orient X: -0.13
+Orient Y: 0.03
+Orient Z: -0.13
+RSSI: -119
+Got: Packet #: 657.00
+Seconds: 1330.45
+Accel X: 9.42
+Accel Y: 0.72
+Accel Z: 1.96
+Orient X: -0.30
+Orient Y: 0.03
+Orient Z: -0.08
+RSSI: -115
+Got: Packet #: 658.00
+Seconds: 1332.47
+Accel X: 9.31
+Accel Y: 1.06
+Accel Z: 1.57
+Orient X: -0.61
+Orient Y: 0.09
+Orient Z: -0.22
+RSSI: -114
+Got: Packet #: 660.00
+Seconds: 1336.50
+Accel X: 9.51
+Accel Y: 2.00
+Accel Z: 1.47
+Orient X: -1.02
+Orient Y: -0.08
+Orient Z: -0.19
+RSSI: -126
+Got: Packet #: 661.00
+Seconds: 1338.51
+Accel X: 9.09
+Accel Y: -0.27
+Accel Z: 2.35
+Orient X: 0.83
+Orient Y: -0.19
+Orient Z: 0.14
+RSSI: -121
+Got: Packet #: 662.00
+Seconds: 1340.53
+Accel X: 6.62
+Accel Y: 0.09
+Accel Z: 1.36
+Orient X: -0.38
+Orient Y: 0.48
+Orient Z: 0.29
+RSSI: -113
+Got: Packet #: 663.00
+Seconds: 1342.55
+Accel X: 9.52
+Accel Y: 2.60
+Accel Z: 1.45
+Orient X: 0.55
+Orient Y: 0.12
+Orient Z: -0.06
+RSSI: -120
+Got: Packet #: 664.00
+Seconds: 1344.56
+Accel X: 9.48
+Accel Y: 0.19
+Accel Z: 2.14
+Orient X: 0.05
+Orient Y: -0.06
+Orient Z: 0.04
+RSSI: -107
+Got: Packet #: 665.00
+Seconds: 1346.57
+Accel X: 9.41
+Accel Y: 1.16
+Accel Z: 1.83
+Orient X: 0.13
+Orient Y: -0.02
+Orient Z: 0.11
+RSSI: -108
+Got: Packet #: 666.00
+Seconds: 1348.59
+Accel X: 9.23
+Accel Y: 1.90
+Accel Z: 2.47
+Orient X: 0.54
+Orient Y: 0.07
+Orient Z: -0.64
+RSSI: -117
+Got: Packet #: 667.00
+Seconds: 1350.61
+Accel X: 9.45
+Accel Y: -0.30
+Accel Z: 1.48
+Orient X: -0.52
+Orient Y: -0.09
+Orient Z: 0.51
+RSSI: -111
+Got: Packet #: 668.00
+Seconds: 1352.62
+Accel X: 9.49
+Accel Y: 0.01
+Accel Z: 1.87
+Orient X: -0.85
+Orient Y: 0.05
+Orient Z: -0.06
+RSSI: -109

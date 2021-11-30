@@ -90,6 +90,9 @@ void loop()
             Serial.println("Accel X: " + (String)rbuf[2]);
             Serial.println("Accel Y: " + (String)rbuf[3]);
             Serial.println("Accel Z: " + (String)rbuf[4]);
+            Serial.println("Orient X: " + (String)rbuf[5]);
+            Serial.println("Orient Y: " + (String)rbuf[6]);
+            Serial.println("Orient Z: " + (String)rbuf[7]);
             Serial.print("RSSI: ");
             Serial.println(rf95.lastRssi(), DEC);
         }

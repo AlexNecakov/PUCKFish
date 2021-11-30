@@ -1,0 +1,73 @@
+Got: Packet #: 189.00      
+Seconds: 387.20            
+Accel X: 9.62              
+Accel Y: 1.47              
+Accel Z: -0.99             
+Orient X: 1.73             
+Orient Y: -0.37            
+Orient Z: -0.18            
+RSSI: -118                 
+Got: Packet #: 190.00      
+Seconds: 389.22            
+Accel X: 8.97              
+Accel Y: -0.12             
+Accel Z: -4.51             
+Orient X: 3.61             
+Orient Y: -0.26            
+Orient Z: 0.10             
+RSSI: -124                 
+Got: Packet #: 192.00      
+Seconds: 393.25            
+Accel X: 9.25              
+Accel Y: 1.12              
+Accel Z: -3.23             
+Orient X: 0.07             
+Orient Y: -0.03            
+Orient Z: -0.64            
+RSSI: -117                 
+Got: Packet #: 195.00      
+Seconds: 399.30            
+Accel X: 8.76              
+Accel Y: 0.29              
+Accel Z: -3.66             
+Orient X: -1.60            
+Orient Y: -0.02            
+Orient Z: 0.95             
+RSSI: -118                 
+Got: Packet #: 196.00      
+Seconds: 401.31            
+Accel X: 9.35              
+Accel Y: 0.71              
+Accel Z: -2.34             
+Orient X: -0.81            
+Orient Y: 0.23             
+Orient Z: -0.03            
+RSSI: -118                 
+Got: Packet #: 197.00      
+Seconds: 403.33            
+Accel X: 8.99              
+Accel Y: -0.57             
+Accel Z: -3.35             
+Orient X: -0.67            
+Orient Y: 0.07             
+Orient Z: -0.39            
+RSSI: -124                 
+Got: Packet #: 198.00      
+Seconds: 405.34            
+Accel X: 9.08              
+Accel Y: -0.62             
+Accel Z: -3.00             
+Orient X: 0.32             
+Orient Y: -0.22            
+Orient Z: 0.47             
+RSSI: -119                 
+Got: Packet #: 200.00      
+Seconds: 409.38            
+Accel X: 9.26              
+Accel Y: 1.37              
+Accel Z: -2.51             
+Orient X: -0.46            
+Orient Y: 0.25             
+Orient Z: -0.09            
+RSSI: -116                 
+                           
