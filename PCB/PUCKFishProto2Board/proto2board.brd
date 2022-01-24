@@ -186,10 +186,10 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="160" y2="0" width="0" layer="20"/>
-<wire x1="160" y1="0" x2="160" y2="100" width="0" layer="20"/>
-<wire x1="160" y1="100" x2="0" y2="100" width="0" layer="20"/>
-<wire x1="0" y1="100" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="93.98" y1="31.75" x2="160" y2="31.75" width="0" layer="20"/>
+<wire x1="160" y1="31.75" x2="160" y2="100" width="0" layer="20"/>
+<wire x1="160" y1="100" x2="93.98" y2="100" width="0" layer="20"/>
+<wire x1="93.98" y1="100" x2="93.98" y2="31.75" width="0" layer="20"/>
 <wire x1="160.02" y1="80.01" x2="160.02" y2="86.36" width="0" layer="20"/>
 <text x="153.543" y="96.012" size="1.016" layer="21" ratio="12" align="center">RST</text>
 <text x="148.59" y="96.012" size="1.016" layer="21" ratio="12" align="center">ARf</text>
@@ -286,6 +286,8 @@ LiPoly Batt
 <dimension x1="147.828" y1="33.02" x2="146.939" y2="50.8" x3="166.751" y3="41.91" textsize="1.778" layer="47" dtype="vertical" unit="inch"/>
 <text x="147.32" y="48.26" size="1.651" layer="22" font="vector" ratio="15" rot="MR0" align="center">BH1750</text>
 <text x="147.193" y="33.909" size="1.016" layer="22" font="vector" ratio="12" rot="MR0" align="center">VLogic/Vcc: 3-5VDC</text>
+<dimension x1="93.98" y1="30.48" x2="160.02" y2="30.48" x3="127" y3="26.67" textsize="1.778" layer="1"/>
+<dimension x1="93.98" y1="31.75" x2="93.98" y2="100" x3="90.17" y3="65.875" textsize="1.778" layer="1"/>
 </plain>
 <libraries>
 <library name="MS583730BA01-50">
