@@ -186,10 +186,10 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="160" y2="0" width="0" layer="20"/>
-<wire x1="160" y1="0" x2="160" y2="100" width="0" layer="20"/>
-<wire x1="160" y1="100" x2="0" y2="100" width="0" layer="20"/>
-<wire x1="0" y1="100" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="93.98" y1="31.75" x2="160" y2="31.75" width="0" layer="20"/>
+<wire x1="160" y1="31.75" x2="160" y2="100" width="0" layer="20"/>
+<wire x1="160" y1="100" x2="93.98" y2="100" width="0" layer="20"/>
+<wire x1="93.98" y1="100" x2="93.98" y2="31.75" width="0" layer="20"/>
 <wire x1="160.02" y1="80.01" x2="160.02" y2="86.36" width="0" layer="20"/>
 <text x="153.543" y="96.012" size="1.016" layer="21" ratio="12" align="center">RST</text>
 <text x="148.59" y="96.012" size="1.016" layer="21" ratio="12" align="center">ARf</text>
@@ -286,6 +286,8 @@ LiPoly Batt
 <dimension x1="147.828" y1="33.02" x2="146.939" y2="50.8" x3="166.751" y3="41.91" textsize="1.778" layer="47" dtype="vertical" unit="inch"/>
 <text x="147.32" y="48.26" size="1.651" layer="22" font="vector" ratio="15" rot="MR0" align="center">BH1750</text>
 <text x="147.193" y="33.909" size="1.016" layer="22" font="vector" ratio="12" rot="MR0" align="center">VLogic/Vcc: 3-5VDC</text>
+<dimension x1="93.98" y1="30.48" x2="160.02" y2="30.48" x3="127" y3="26.67" textsize="1.778" layer="1"/>
+<dimension x1="93.98" y1="31.75" x2="93.98" y2="100" x3="90.17" y3="65.875" textsize="1.778" layer="1"/>
 </plain>
 <libraries>
 <library name="MS583730BA01-50">
@@ -2041,11 +2043,7 @@ design rules under a new name.</description>
 </element>
 </elements>
 <signals>
-<signal name="VDD">
-<contactref element="U1" pad="2"/>
-</signal>
 <signal name="GND" class="1">
-<contactref element="U1" pad="1"/>
 <polygon width="0.254" layer="1">
 <vertex x="160.02" y="76.2"/>
 <vertex x="160.02" y="99.06"/>
@@ -2059,7 +2057,6 @@ design rules under a new name.</description>
 <vertex x="109.093" y="76.2"/>
 </polygon>
 <contactref element="JP2" pad="13"/>
-<contactref element="JP5" pad="6"/>
 <contactref element="JP6" pad="3"/>
 <polygon width="0.254" layer="1">
 <vertex x="134.62" y="72.39"/>
@@ -2086,10 +2083,10 @@ design rules under a new name.</description>
 <vertex x="160.02" y="33.02"/>
 <vertex x="134.62" y="33.02"/>
 </polygon>
-<wire x1="153.67" y1="69.85" x2="146.05" y2="97.79" width="0" layer="19" extent="1-1"/>
-<wire x1="146.05" y1="57.15" x2="153.67" y2="69.85" width="0" layer="19" extent="1-1"/>
+<contactref element="U1" pad="1"/>
+<wire x1="146.05" y1="57.15" x2="146.05" y2="97.79" width="0" layer="19" extent="1-1"/>
 <wire x1="146.05" y1="35.56" x2="146.05" y2="57.15" width="0" layer="19" extent="1-1"/>
-<wire x1="108.22" y1="53.07" x2="146.05" y2="35.56" width="0" layer="19" extent="1-1"/>
+<wire x1="108.22" y1="53.07" x2="146.05" y2="57.15" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="MOSI">
 <contactref element="JP2" pad="5"/>
@@ -2121,9 +2118,6 @@ design rules under a new name.</description>
 <signal name="D12">
 <contactref element="JP4" pad="5"/>
 </signal>
-<signal name="+3V3">
-<contactref element="JP2" pad="15"/>
-</signal>
 <signal name="VBUS">
 <contactref element="JP4" pad="3"/>
 </signal>
@@ -2149,15 +2143,19 @@ design rules under a new name.</description>
 <contactref element="JP4" pad="11"/>
 <contactref element="JP6" pad="4"/>
 <contactref element="JP3" pad="4"/>
+<contactref element="U1" pad="3"/>
 <wire x1="148.59" y1="35.56" x2="148.59" y2="57.15" width="0" layer="19" extent="1-1"/>
 <wire x1="118.11" y1="77.47" x2="148.59" y2="57.15" width="0" layer="19" extent="1-1"/>
+<wire x1="110.22" y1="51.07" x2="118.11" y2="77.47" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="SDA">
 <contactref element="JP4" pad="12"/>
 <contactref element="JP6" pad="5"/>
 <contactref element="JP3" pad="5"/>
+<contactref element="U1" pad="4"/>
 <wire x1="151.13" y1="35.56" x2="151.13" y2="57.15" width="0" layer="19" extent="1-1"/>
 <wire x1="115.57" y1="77.47" x2="151.13" y2="57.15" width="0" layer="19" extent="1-1"/>
+<wire x1="110.22" y1="53.07" x2="115.57" y2="77.47" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="D9">
 <contactref element="JP4" pad="8"/>
@@ -2187,36 +2185,14 @@ design rules under a new name.</description>
 <signal name="DIO1">
 <contactref element="JP2" pad="1"/>
 </signal>
-<signal name="3.3V">
-<contactref element="JP6" pad="2"/>
-<contactref element="JP3" pad="2"/>
-<wire x1="143.51" y1="35.56" x2="143.51" y2="57.15" width="0" layer="19" extent="1-1"/>
-</signal>
-<signal name="FSYNC_IN">
-<contactref element="JP5" pad="2"/>
-</signal>
-<signal name="CLKIN">
-<contactref element="JP5" pad="5"/>
-</signal>
-<signal name="SDA_EXT">
-<contactref element="JP5" pad="4"/>
-</signal>
-<signal name="SCL_EXT">
-<contactref element="JP5" pad="3"/>
-</signal>
-<signal name="AD0">
-<contactref element="JP5" pad="1"/>
-</signal>
-<signal name="INT">
-<contactref element="JP6" pad="6"/>
-</signal>
 <signal name="VCC" class="1">
 <contactref element="JP6" pad="1"/>
 <contactref element="JP3" pad="1"/>
+<contactref element="JP2" pad="15"/>
+<contactref element="U1" pad="2"/>
+<wire x1="140.97" y1="57.15" x2="151.13" y2="97.79" width="0" layer="19" extent="1-1"/>
 <wire x1="140.97" y1="35.56" x2="140.97" y2="57.15" width="0" layer="19" extent="1-1"/>
-</signal>
-<signal name="ADDR">
-<contactref element="JP3" pad="6"/>
+<wire x1="108.22" y1="51.07" x2="140.97" y2="57.15" width="0" layer="19" extent="1-1"/>
 </signal>
 </signals>
 <mfgpreviewcolors>
