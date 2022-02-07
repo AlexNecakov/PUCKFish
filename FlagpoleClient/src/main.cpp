@@ -17,9 +17,11 @@
 
 #include <Arduino.h>
 #include <math.h>
-#include <Adafruit_FXOS8700.h>
-#include <Adafruit_FXAS21002C.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
+#include <Adafruit_MPU6050.h>
+#include <BH1750.h>
 
 // for feather m0 RFM9x
 #define RFM95_CS 8
@@ -31,14 +33,15 @@
 #define RF95_FREQ 915.0
 
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
-Adafruit_FXOS8700 accelmag = Adafruit_FXOS8700(0x8700A, 0x8700B);
-Adafruit_FXAS21002C gyro = Adafruit_FXAS21002C(0x0021002C);
+Adafruit_MPU6050 mpu;
+BH1750 lightMeter(0x23);
 
 float packetnum = 0;
 
 void setup()
 {
     Serial.begin(9600);
+    Wire.begin();
     delay(5000);
 
     Serial.println("LoRa System Initializing");
@@ -69,52 +72,50 @@ void setup()
 
     rf95.setTxPower(23, false);
 
-    if (!accelmag.begin())
+    if (!mpu.begin())
     {
-        Serial.println("Ooops, no FXOS8700 detected ... Check your wiring!");
+        Serial.println("Sensor init failed");
         while (1)
-            ;
+            yield();
     }
-    if (!gyro.begin())
+    Serial.println("Found a MPU-6050 sensor");
+
+    if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
     {
-        Serial.println("Ooops, no FXAS21002C detected ... Check your wiring!");
-        while (1)
-            ;
+        Serial.println(F("BH1750 Advanced begin"));
     }
-    Serial.println("IMU init OK!");
+    else
+    {
+        Serial.println(F("Error initialising BH1750"));
+    }
 }
 
 void loop()
 {
     delay(1000); // Wait 1 second between transmits
 
-    sensors_event_t aevent, mevent, event;
-    accelmag.getEvent(&aevent, &mevent);
-    gyro.getEvent(&event);
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
 
     //Display the accel results (acceleration is measured in m/s^2)
-    Serial.print("A ");
+    Serial.print("Accelerometer ");
     Serial.print("X: ");
-    Serial.print(aevent.acceleration.x, 4);
-    Serial.print("  ");
+    Serial.print(a.acceleration.x, 1);
+    Serial.print(" m/s^2, ");
     Serial.print("Y: ");
-    Serial.print(aevent.acceleration.y, 4);
-    Serial.print("  ");
+    Serial.print(a.acceleration.y, 1);
+    Serial.print(" m/s^2, ");
     Serial.print("Z: ");
-    Serial.print(aevent.acceleration.z, 4);
-    Serial.print("  ");
-    Serial.println("m/s^2");
-    Serial.print("O ");
-    Serial.print("X: ");
-    Serial.print(event.gyro.x, 4);
-    Serial.print("  ");
-    Serial.print("Y: ");
-    Serial.print(event.gyro.y, 4);
-    Serial.print("  ");
-    Serial.print("Z: ");
-    Serial.print(event.gyro.z, 4);
-    Serial.print("  ");
-    Serial.println("rad/s");
+    Serial.print(a.acceleration.z, 1);
+    Serial.println(" m/s^2");
+
+    if (lightMeter.measurementReady())
+    {
+        float lux = lightMeter.readLightLevel();
+        Serial.print("Light: ");
+        Serial.print(lux);
+        Serial.println(" lx");
+    }
 
     float radiopacket[40] = {packetnum++, (float)millis() / 1000, aevent.acceleration.x, aevent.acceleration.y, aevent.acceleration.z, event.gyro.x, event.gyro.y, event.gyro.z};
 
