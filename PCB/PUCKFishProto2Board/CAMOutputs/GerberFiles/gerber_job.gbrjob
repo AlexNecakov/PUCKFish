@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2022-02-13T21:02:40Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.6.2"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "proto2board"
+        },
+        "Owner": "alexnecakov alexnecakov <alexnecakov@gmail.com>",
+        "Size": {
+            "X": 66.02,
+            "Y": 68.25
+        }
+    }
+}
