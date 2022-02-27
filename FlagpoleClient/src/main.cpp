@@ -1,137 +1,128 @@
-// PPPPPPPPPPPPPPPPP   UUUUUUUU     UUUUUUUU       CCCCCCCCCCCCCKKKKKKKKK    KKKKKKKFFFFFFFFFFFFFFFFFFFFFF  iiii                  hhhhhhh
-// P::::::::::::::::P  U::::::U     U::::::U    CCC::::::::::::CK:::::::K    K:::::KF::::::::::::::::::::F i::::i                 h:::::h
-// P::::::PPPPPP:::::P U::::::U     U::::::U  CC:::::::::::::::CK:::::::K    K:::::KF::::::::::::::::::::F  iiii                  h:::::h
-// PP:::::P     P:::::PUU:::::U     U:::::UU C:::::CCCCCCCC::::CK:::::::K   K::::::KFF::::::FFFFFFFFF::::F                        h:::::h
-//   P::::P     P:::::P U:::::U     U:::::U C:::::C       CCCCCCKK::::::K  K:::::KK   F:::::F       FFFFFFiiiiiii     ssssssssss   h::::h hhhhh
-//   P::::P     P:::::P U:::::D     D:::::UC:::::C                K:::::K K:::::K     F:::::F             i:::::i   ss::::::::::s  h::::hh:::::hhh
-//   P::::PPPPPP:::::P  U:::::D     D:::::UC:::::C                K::::::K:::::K      F::::::FFFFFFFFFF    i::::i ss:::::::::::::s h::::::::::::::hh
-//   P:::::::::::::PP   U:::::D     D:::::UC:::::C                K:::::::::::K       F:::::::::::::::F    i::::i s::::::ssss:::::sh:::::::hhh::::::h
-//   P::::PPPPPPPPP     U:::::D     D:::::UC:::::C                K:::::::::::K       F:::::::::::::::F    i::::i  s:::::s  ssssss h::::::h   h::::::h
-//   P::::P             U:::::D     D:::::UC:::::C                K::::::K:::::K      F::::::FFFFFFFFFF    i::::i    s::::::s      h:::::h     h:::::h
-//   P::::P             U:::::D     D:::::UC:::::C                K:::::K K:::::K     F:::::F              i::::i       s::::::s   h:::::h     h:::::h
-//   P::::P             U::::::U   U::::::U C:::::C       CCCCCCKK::::::K  K:::::KK   F:::::F              i::::i ssssss   s:::::s h:::::h     h:::::h
-// PP::::::PP           U:::::::UUU:::::::U  C:::::CCCCCCCC::::CK:::::::K   K::::::KFF:::::::FF           i::::::is:::::ssss::::::sh:::::h     h:::::h
-// P::::::::P            UU:::::::::::::UU    CC:::::::::::::::CK:::::::K    K:::::KF::::::::FF           i::::::is::::::::::::::s h:::::h     h:::::h
-// P::::::::P              UU:::::::::UU        CCC::::::::::::CK:::::::K    K:::::KF::::::::FF           i::::::i s:::::::::::ss  h:::::h     h:::::h
-// PPPPPPPPPP                UUUUUUUUU             CCCCCCCCCCCCCKKKKKKKKK    KKKKKKKFFFFFFFFFFF           iiiiiiii  sssssssssss    hhhhhhh     hhhhhhh
+// PUCKFish Client Code
+// Alex Necakov 2022
 
 #include <Arduino.h>
-#include <math.h>
 #include <Wire.h>
+#include <SPI.h>
+#include <math.h>
 #include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
 #include <BH1750.h>
+ #include <do_grav.h>
 
-// for feather m0 RFM9x
-#define RFM95_CS 8
-#define RFM95_RST 4
-#define RFM95_INT 3
-#define VBATPIN A7
+// Pin Defines
+#define RF95_CS 8
+#define RF95_RST 4
+#define RF95_INT 3
 
-// Change to 915.0 or other frequency, must match TX's freq!
+#define GRAVITYDO_PIN A0
+
+#define VBAT_PIN A7
+
+// Value Defines
+#define POLLING_FREQ 50
 #define RF95_FREQ 915.0
+#define BH1750_I2C_ADDRESS 0x23
+#define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 
-RH_RF95 rf95(RFM95_CS, RFM95_INT);
-Adafruit_MPU6050 mpu;
-BH1750 lightMeter(0x23);
+RH_RF95 rf95(RF95_CS, RF95_INT);
+Adafruit_MPU6050 mpu6050;
+BH1750 bh1750(BH1750_I2C_ADDRESS);
+Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 
 float packetnum = 0;
+sensors_event_t aEvent, gEvent, tEvent;
+
+int rf95Init()
+{
+    Serial.println("RF95\tInitializing");
+    while (!rf95.init())
+        Serial.println("RF95\tInit failed");
+    Serial.println("RF95\tInit success");
+
+    // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+    while (!rf95.setFrequency(RF95_FREQ))
+        Serial.println("RF95\tSet frequency failed");
+    Serial.print("RF95\tSet frequency to: ");
+    Serial.println(RF95_FREQ);
+
+    rf95.setTxPower(23, false);
+
+    return 0;
+}
+
+void rf95Loop()
+{
+}
+
+int mpu6050Init()
+{
+    while (!mpu.begin())
+        Serial.println("MPU6050\tInit failed");
+    Serial.println("MPU6050\tInit success");
+
+    return 0;
+}
+
+void mpu6050Loop()
+{
+    mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
+}
+
+int bh1750Init()
+{
+    while (!lightMeter.begin(lightMeter.begin(BH1750::BH1750_MODE)))
+        Serial.println("BH1750\tInit failed");
+    Serial.println("BH1750\tInit success");
+
+    return 0;
+}
+
+//time per measurement - 120ms
+float bh1750Loop()
+{
+    while (!lightMeter.measurementReady(true))
+    {
+        yield();
+    }
+    float lux = lightMeter.readLightLevel();
+    lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
+    return lux;
+}
+
+int gravitydoInit(){
+    while (!gravitydo.begin())
+        Serial.println("GRAVITYDO\tInit failed");
+    Serial.println("GRAVITYDO\tInit success");
+
+    gravitydo.cal();
+    Serial.println("GRAVITYDO\tCalibrated");
+
+    return 0;
+}
+
+float gravitydoLoop(){
+    return gravitydo.read_do_percentage();
+}
 
 void setup()
 {
     Serial.begin(9600);
     Wire.begin();
-    delay(5000);
 
-    Serial.println("LoRa System Initializing");
-
-    // manual reset
-    digitalWrite(RFM95_RST, LOW);
-    delay(10);
-    digitalWrite(RFM95_RST, HIGH);
-    delay(10);
-
-    while (!rf95.init())
-    {
-        Serial.println("LoRa radio init failed");
-        while (1)
-            ;
-    }
-    Serial.println("LoRa radio init OK!");
-
-    // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-    if (!rf95.setFrequency(RF95_FREQ))
-    {
-        Serial.println("setFrequency failed");
-        while (1)
-            ;
-    }
-    Serial.print("Set Freq to: ");
-    Serial.println(RF95_FREQ);
-
-    rf95.setTxPower(23, false);
-
-    if (!mpu.begin())
-    {
-        Serial.println("Sensor init failed");
-        while (1)
-            yield();
-    }
-    Serial.println("Found a MPU-6050 sensor");
-
-    if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
-    {
-        Serial.println(F("BH1750 Advanced begin"));
-    }
-    else
-    {
-        Serial.println(F("Error initialising BH1750"));
-    }
+    rf95Init();
+    mpu6050Init();
+    bh1750Init();
+    gravitydoInit();
 }
 
 void loop()
 {
-    delay(1000); // Wait 1 second between transmits
+    //get readings
+    float luxReading = mpu6050Loop();
+    bh1750Loop();
+    float doxReading = gravitydoLoop();
 
-    sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
-
-    //Display the accel results (acceleration is measured in m/s^2)
-    Serial.print("Accelerometer ");
-    Serial.print("X: ");
-    Serial.print(a.acceleration.x, 1);
-    Serial.print(" m/s^2, ");
-    Serial.print("Y: ");
-    Serial.print(a.acceleration.y, 1);
-    Serial.print(" m/s^2, ");
-    Serial.print("Z: ");
-    Serial.print(a.acceleration.z, 1);
-    Serial.println(" m/s^2");
-
-    if (lightMeter.measurementReady())
-    {
-        float lux = lightMeter.readLightLevel();
-        Serial.print("Light: ");
-        Serial.print(lux);
-        Serial.println(" lx");
-    }
-
-    float radiopacket[40] = {packetnum++, (float)millis() / 1000, aevent.acceleration.x, aevent.acceleration.y, aevent.acceleration.z, event.gyro.x, event.gyro.y, event.gyro.z};
-
-    Serial.println("Sending...");
-    Serial.println();
-    delay(10);
-    rf95.send((uint8_t *)radiopacket, sizeof(radiopacket) * 4);
-
-    float measuredvbat = analogRead(VBATPIN);
-    measuredvbat *= 2;    // we divided by 2, so multiply back
-    measuredvbat *= 3.3;  // Multiply by 3.3V, our reference voltage
-    measuredvbat /= 1024; // convert to voltage
-    Serial.print("VBat: ");
-    Serial.println(measuredvbat);
-
-    digitalWrite(13, HIGH);
-    delay(1000);
-    digitalWrite(13, LOW);
+    rf95Loop();
 }
