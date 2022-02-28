@@ -9,6 +9,7 @@
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
 #include <BH1750.h>
+#include <zxct.h>
 #include <do_grav.h>
 
 // Pin Defines
@@ -29,11 +30,13 @@
 RH_RF95 rf95(RF95_CS, RF95_INT);
 Adafruit_MPU6050 mpu6050;
 BH1750 bh1750(BH1750_I2C_ADDRESS);
+ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 
 float packetnum = 0;
 sensors_event_t aEvent, gEvent, tEvent;
 
+//rfm95 radio code
 int rf95Init()
 {
     Serial.println("RF95\tInitializing");
@@ -56,6 +59,7 @@ void rf95Loop()
 {
 }
 
+//mpu6050 accel/gyro/temp sensor code
 int mpu6050Init()
 {
     while (!mpu.begin())
@@ -70,6 +74,7 @@ void mpu6050Loop()
     mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
 }
 
+//bh1750 light sensor code
 int bh1750Init()
 {
     while (!lightMeter.begin(lightMeter.begin(BH1750::BH1750_MODE)))
@@ -91,6 +96,22 @@ float bh1750Loop()
     return lux;
 }
 
+//zxct1107 salinity sensor code
+int zxct1107Init()
+{
+    while (!zxct1107.begin())
+        Serial.println("ZXCT1107\tInit failed");
+    Serial.println("ZXCT1107\tInit success");
+
+    return 0;
+}
+
+float zxct1107Loop()
+{
+    return zxct1107.read_voltage();
+}
+
+//gravity dissolved oxygen sensor code
 int gravitydoInit()
 {
     while (!gravitydo.begin())
@@ -116,6 +137,7 @@ void setup()
     rf95Init();
     mpu6050Init();
     bh1750Init();
+    zxct1107Init();
     gravitydoInit();
 }
 
@@ -124,6 +146,7 @@ void loop()
     //get readings
     float luxReading = mpu6050Loop();
     bh1750Loop();
+    float salinity = zxct1107Loop();
     float doxReading = gravitydoLoop();
 
     rf95Loop();
