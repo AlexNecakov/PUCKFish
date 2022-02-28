@@ -22,10 +22,13 @@
 #define VBAT_PIN A7
 
 // Value Defines
-#define POLLING_FREQ 50
+#define POLLING_FREQ 5
 #define RF95_FREQ 915.0
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
+
+bool isSurfaced;
+int packNum = 0;
 
 RH_RF95 rf95(RF95_CS, RF95_INT);
 Adafruit_MPU6050 mpu6050;
@@ -78,7 +81,6 @@ int bh1750Init()
     return 0;
 }
 
-//time per measurement - 120ms
 void bh1750Loop()
 {
     while (!lightMeter.measurementReady(true))
@@ -152,6 +154,9 @@ void setup()
     Serial.begin(9600);
     Wire.begin();
 
+    //implement when pressure sensor is here
+    isSurfaced = false;
+
     rf95Init();
     mpu6050Init();
     bh1750Init();
@@ -162,11 +167,17 @@ void setup()
 void loop()
 {
     //get readings
-    timeStamp.add(millis());
-    mpu6050Loop();
-    bh1750Loop();
-    zxct1107Loop();
-    gravitydoLoop();
+    if (!isSurfaced)
+    {
+        timeStamp.add(millis());
+        mpu6050Loop();
+        bh1750Loop();
+        zxct1107Loop();
+        gravitydoLoop();
+    }
+    wait(POLLING_FREQ);
 
-    rf95Loop();
+    //send when surfaced (currently debug code)
+    if(packNum++%POLLING_FREQ == 0)
+        rf95Loop();
 }
