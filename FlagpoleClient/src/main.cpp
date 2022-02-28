@@ -9,15 +9,15 @@
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
 #include <BH1750.h>
- #include <do_grav.h>
+#include <do_grav.h>
 
 // Pin Defines
 #define RF95_CS 8
 #define RF95_RST 4
 #define RF95_INT 3
 
-#define GRAVITYDO_PIN A0
-
+#define ZXCT1107_PIN A0
+#define GRAVITYDO_PIN A1
 #define VBAT_PIN A7
 
 // Value Defines
@@ -91,7 +91,8 @@ float bh1750Loop()
     return lux;
 }
 
-int gravitydoInit(){
+int gravitydoInit()
+{
     while (!gravitydo.begin())
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
@@ -102,7 +103,8 @@ int gravitydoInit(){
     return 0;
 }
 
-float gravitydoLoop(){
+float gravitydoLoop()
+{
     return gravitydo.read_do_percentage();
 }
 
