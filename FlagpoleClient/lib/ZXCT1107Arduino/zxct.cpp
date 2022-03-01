@@ -14,9 +14,6 @@ bool ZXCT1107::begin()
 
 float ZXCT1107::read_voltage()
 {
-    float voltage_mV = 0;
-
-    // Your code here
     voltage_mV += analogRead(this->pin);
 
     
@@ -24,10 +21,10 @@ float ZXCT1107::read_voltage()
 }
 
 float ZXCT1107::read_salinity() {
-    float salinity;
-    float conductivity = read_current/voltage_mV;
+    float salinity = 0;
+    // float conductivity = read_current/voltage_mV;
 
-    salinity = (pow(conductivity, 1.0878)) * 0.4665;
+    // salinity = (pow(conductivity, 1.0878)) * 0.4665;
     return salinity;
 
 }
