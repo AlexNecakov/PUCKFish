@@ -2,6 +2,7 @@
 // Alex Necakov 2022
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <RH_RF95.h>
@@ -14,7 +15,7 @@
 // Value Defines
 #define RF95_FREQ 915.0
 
-RH_RF95 rf95(RFM95_CS, RFM95_INT);
+RH_RF95 rf95(RF95_CS, RF95_INT);
 
 int rf95Init()
 {
@@ -29,8 +30,6 @@ int rf95Init()
     Serial.print("RF95\tSet frequency to: ");
     Serial.println(RF95_FREQ);
 
-    rf95.setTxPower(23, false);
-
     return 0;
 }
 
@@ -38,15 +37,18 @@ void rf95Loop()
 {
     if (rf95.available())
     {
+        Serial.println("RF95\tAvailable");
         // Should be a message for us now
         uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
         uint8_t len = sizeof(buf);
 
         if (rf95.recv(buf, &len))
         {
-            StaticJsonDocument<len> packet;
+            DynamicJsonDocument  packet(len);
             Serial.println("RF95\tReceive success");
+            deserializeJson(packet, buf);
             serializeJsonPretty(packet, Serial);
+            Serial.println("");
         }
         else
         {
@@ -57,6 +59,8 @@ void rf95Loop()
 
 void setup()
 {
+    Serial.begin(9600);
+    delay(5000);
     rf95Init();
 }
 

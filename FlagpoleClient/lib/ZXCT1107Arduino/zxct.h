@@ -12,9 +12,8 @@ class ZXCT1107{
         
         
     protected:
-
+        uint8_t pin = A0;
+        
 	private:
 		
 };
-
-#endif
