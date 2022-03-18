@@ -12,8 +12,9 @@ class ZXCT1107{
         float read_salinity();
         
     protected:
-        uint8_t pin = A0;
-        
+
 	private:
-		float voltage_mV;
+		
 };
+
+#endif
