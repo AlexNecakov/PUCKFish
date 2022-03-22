@@ -23,33 +23,36 @@
 // Uncomment, to enable debug messages
 // #define MS5_DEBUG
 
-#define MS5_I2C_ADDR 0x76
-
-// Reg Addresses
+// I2C Command Bytes
 #define MS5_RESET 0x1E
-#define MS5_READ_PROM 0xA6
+#define MS5_READ_PROM 0xA2
 #define MS5_D1_CONV_SEQ 0x48
 #define MS5_D2_CONV_SEQ 0x58
 #define MS5_READ_ADC 0x00
+
+// Conversion mode num
+#define D1_CONV_MODE false
+#define D2_CONV_MODE true
 
 class MS5
 {
 
 public:
-    MS5(byte addr = MS5_I2C_ADDR);
-    bool begin(byte addr = MS5_I2C_ADDR,
+    MS5(byte addr = 0x76);
+    bool begin(byte addr = 0x76,
                TwoWire *i2c = nullptr);
     bool reset();
-    float readPressure();
-    float readTemperature();
+    int32_t readPressure();
+    int32_t readTemperature();
 
 private:
-    byte addr;
-    byte MS5_MTreg = (byte)MS5_DEFAULT_MTREG;
-    bool readPROM();
-    bool d1Conversion();
-    bool d2Conversion();
     TwoWire *I2C;
+    byte MS5_I2CADDR;
+    uint16_t[5] calib;
+    int32_t dt;
+
+    bool readPROM();
+    bool conversion(bool mode);
 };
 
 #endif
