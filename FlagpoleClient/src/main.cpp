@@ -11,6 +11,7 @@
 #include <BH1750.h>
 #include <zxct.h>
 #include <do_grav.h>
+#include <ms5.h>
 
 // Pin Defines
 #define RF95_CS 8
@@ -35,6 +36,7 @@ Adafruit_MPU6050 mpu6050;
 BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
+MS5 ms5;
 
 // JsonArray timeStamp = packet.createNestedArray("timeStamp");
 // //JsonArray dissolvedOxygen = packet.createNestedArray("dissolvedOxygen");
@@ -91,38 +93,53 @@ void bh1750Loop(JsonObject packet)
     bh1750.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
 }
 
-// //zxct1107 salinity sensor code
-// int zxct1107Init()
-// {
-//     while (!zxct1107.begin())
-//         Serial.println("ZXCT1107\tInit failed");
-//     Serial.println("ZXCT1107\tInit success");
+//zxct1107 salinity sensor code
+int zxct1107Init()
+{
+    while (!zxct1107.begin())
+        Serial.println("ZXCT1107\tInit failed");
+    Serial.println("ZXCT1107\tInit success");
 
-//     return 0;
-// }
+    return 0;
+}
 
-// void zxct1107Loop(JsonObject packet)
-// {
-//     salinity.add(zxct1107.read_voltage());
-// }
+void zxct1107Loop(JsonObject packet)
+{
+    packet["salinity"] = (zxct1107.read_voltage());
+}
 
-// //gravity dissolved oxygen sensor code
-// int gravitydoInit()
-// {
-//     while (!gravitydo.begin())
-//         Serial.println("GRAVITYDO\tInit failed");
-//     Serial.println("GRAVITYDO\tInit success");
+//gravity dissolved oxygen sensor code
+int gravitydoInit()
+{
+    while (!gravitydo.begin())
+        Serial.println("GRAVITYDO\tInit failed");
+    Serial.println("GRAVITYDO\tInit success");
 
-//     // gravitydo.cal();
-//     // Serial.println("GRAVITYDO\tCalibrated");
+    // gravitydo.cal();
+    // Serial.println("GRAVITYDO\tCalibrated");
 
-//     return 0;
-// }
+    return 0;
+}
 
-// void gravitydoLoop(JsonObject packet)
-// {
-//     dissolvedOxygen.add(gravitydo.read_do_percentage());
-// }
+void gravitydoLoop(JsonObject packet)
+{
+    packet["dissolvedOxygen"] = (gravitydo.read_do_percentage());
+}
+
+//pressure sensor code
+int ms5Init()
+{
+    while (!ms5.begin())
+        Serial.println("MS5\tInit failed");
+    Serial.println("MS5\tInit success");
+
+    return 0;
+}
+
+void ms5Loop(JsonObject packet)
+{
+    packet["pressure"] = (ms5.readPressure());
+}
 
 //rfm95 radio code
 int rf95Init()
@@ -165,8 +182,9 @@ void setup()
     rf95Init();
     mpu6050Init();
     bh1750Init();
-    //zxct1107Init();
-    ///gravitydoInit();
+    zxct1107Init();
+    gravitydoInit();
+    ms5Init();
 }
 
 void loop()
@@ -179,8 +197,9 @@ void loop()
         packet["timeStamp"] = (millis());
         mpu6050Loop(packet);
         bh1750Loop(packet);
-        //zxct1107Loop(packet);
-        //gravitydoLoop(packet);
+        zxct1107Loop(packet);
+        gravitydoLoop(packet);
+        ms5Loop(packet);
     }
     delay(POLLING_FREQ);
 
