@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <SD.h>
 #include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
@@ -22,6 +23,8 @@
 #define GRAVITYDO_PIN A1
 #define VBAT_PIN A7
 
+#define SD_CS 1
+
 // Value Defines
 #define POLLING_FREQ 5000
 #define RF95_FREQ 915.0
@@ -37,6 +40,7 @@ BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 MS5 ms5;
+File dataStorage;
 
 // JsonArray timeStamp = packet.createNestedArray("timeStamp");
 // //JsonArray dissolvedOxygen = packet.createNestedArray("dissolvedOxygen");
@@ -169,6 +173,23 @@ void rf95Loop(JsonObject packet)
     rf95.waitPacketSent();
 }
 
+// sd card code
+int sdInit()
+{
+    Serial.println("SD\tInitializing");
+    while (!SD.begin(SD_CS))
+        Serial.println("SD\tInitialization failed!");
+
+    return 0;
+}
+
+void sdLoop(JsonObject packet)
+{
+    dataStorage = SD.open("storage.json");
+    dataStorage.println(packet);
+    dataStorage.close();
+}
+
 void setup()
 {
     Serial.begin(9600);
@@ -180,6 +201,7 @@ void setup()
     isSurfaced = false;
 
     rf95Init();
+    sdInit();
     mpu6050Init();
     bh1750Init();
     zxct1107Init();
@@ -205,5 +227,6 @@ void loop()
 
     //send when surfaced (currently debug code)
     //if(packNum++%POLLING_FREQ == 0)
+    sdLoop(packet);
     rf95Loop(packet);
 }
