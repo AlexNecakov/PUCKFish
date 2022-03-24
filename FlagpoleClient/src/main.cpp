@@ -109,7 +109,7 @@ int zxct1107Init()
 
 void zxct1107Loop(JsonObject packet)
 {
-    packet["salinity"] = (zxct1107.read_voltage());
+    packet["salinity"] = (zxct1107.read_salinity());
 }
 
 //gravity dissolved oxygen sensor code

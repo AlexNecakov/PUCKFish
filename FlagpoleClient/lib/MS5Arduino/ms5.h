@@ -48,7 +48,7 @@ public:
 private:
     TwoWire *I2C;
     byte MS5_I2CADDR;
-    uint16_t[5] calib;
+    uint16_t calib[6];
     int32_t dt;
 
     bool readPROM();

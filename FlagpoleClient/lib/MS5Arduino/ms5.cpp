@@ -86,7 +86,7 @@ bool MS5::reset()
 
     // Send mode to sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write(reset);
+    __wire_write(MS5_RESET);
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
@@ -120,8 +120,8 @@ bool MS5::readPROM()
 
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_PROM);
-    I2C->requestFrom((int)MS5_I2CADDR, (int)12));
-    for (int i = 0, i < 6; i++)
+    I2C->requestFrom(MS5_I2CADDR, 12);
+    for (int i = 0; i < 6; i++)
     {
         calib[i] = __wire_read();
         calib[i] <<= 8;
@@ -159,17 +159,10 @@ bool MS5::conversion(bool mode)
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
-    switch (mode)
-    {
-    case D1_CONV_MODE:
+    if (mode == D1_CONV_MODE)
         __wire_write(MS5_D1_CONV_SEQ);
-        break;
-    case D2_CONV_MODE:
+    else
         __wire_write(MS5_D2_CONV_SEQ);
-        break;
-    default:
-        break;
-    }
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
@@ -188,7 +181,6 @@ bool MS5::conversion(bool mode)
     return false;
 }
 
-
 /**
  * Read temperature from sensor
  * @return Temperature in celsius
@@ -206,7 +198,7 @@ int32_t MS5::readTemperature()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom((int)MS5_I2CADDR, (int)3));
+    I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d2 = 0;
     d2 = __wire_read();
     d2 <<= 8;
@@ -240,7 +232,7 @@ int32_t MS5::readPressure()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom((int)MS5_I2CADDR, (int)3));
+    I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d1 = 0;
     d1 = __wire_read();
     d1 <<= 8;
@@ -249,9 +241,9 @@ int32_t MS5::readPressure()
     d1 |= __wire_read();
     I2C->endTransmission();
 
-    int64_t off = calib[1] * 65536 + ((calib[3]*dt)/128);
-    int64_t sens = calib[0] * 32768 + ((calib[2]*dt)/256);
-    pressure = (d1 * sens / 2097152 - off)/8192;
+    int64_t off = calib[1] * 65536 + ((calib[3] * dt) / 128);
+    int64_t sens = calib[0] * 32768 + ((calib[2] * dt) / 256);
+    pressure = (d1 * sens / 2097152 - off) / 8192;
 
     return pressure;
 }
