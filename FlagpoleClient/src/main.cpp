@@ -55,24 +55,6 @@ void mpu6050Init()
     Serial.println("MPU6050\tInit success");
 }
 
-void mpu6050Loop(JsonArray packet)
-{
-    sensors_event_t aEvent, gEvent, tEvent;
-    mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-
-    float acceleration[3] = {aEvent.acceleration.x, aEvent.acceleration.y, aEvent.acceleration.z};
-    float orientation[3] = {gEvent.orientation.x, gEvent.orientation.y, gEvent.orientation.z};
-    float temperature = tEvent.temperature;
-
-    packet.add(acceleration[0]);
-    packet.add(acceleration[1]);
-    packet.add(acceleration[2]);
-    packet.add(orientation[0]);
-    packet.add(orientation[1]);
-    packet.add(orientation[2]);
-    packet.add(temperature);
-}
-
 //bh1750 light sensor code
 void bh1750Init()
 {
@@ -81,13 +63,13 @@ void bh1750Init()
     Serial.println("BH1750\tInit success");
 }
 
-void bh1750Loop(JsonArray packet)
+float bh1750Loop()
 {
     float lux = bh1750.readLightLevel();
 
-    packet.add(lux);
-
     bh1750.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
+
+    return lux;
 }
 
 //zxct1107 salinity sensor code
@@ -98,10 +80,9 @@ void zxct1107Init()
     Serial.println("ZXCT1107\tInit success");
 }
 
-void zxct1107Loop(JsonArray packet)
+int16_t zxct1107Loop()
 {
-
-    packet.add(zxct1107.read_salinity());
+    int16_t salinity = zxct1107.read_salinity() return salinity;
 }
 
 //gravity dissolved oxygen sensor code
@@ -115,10 +96,10 @@ void gravitydoInit()
     Serial.println("GRAVITYDO\tCalibrated");
 }
 
-void gravitydoLoop(JsonArray packet)
+float gravitydoLoop()
 {
     float dissolvedOxygen = gravitydo.read_do_percentage();
-    packet.add(dissolvedOxygen);
+    return dissolvedOxygen;
 }
 
 //pressure sensor code
@@ -131,11 +112,11 @@ void ms5Init()
     Serial.println("MS5\tInit success");
 }
 
-void ms5Loop(JsonArray packet)
+int32_t ms5Loop()
 {
     int32_t pressure = ms5.readPressure();
 
-    packet.add(pressure);
+    return pressure;
 }
 
 //rfm95 radio code
@@ -155,13 +136,12 @@ void rf95Init()
     rf95.setTxPower(23, false);
 }
 
-void rf95Loop(StaticJsonDocument packet)
+void rf95Loop()
 {
-    uint8_t output[sizeof(packet)];
-    serializeJson(packet, output);
-    serializeJsonPretty(packet, Serial);
+    dataStorage = SD.open("storage.json", FILE_READ);
     rf95.send(output, sizeof(output));
     rf95.waitPacketSent();
+    dataStorage.close();
 }
 
 // sd card code
@@ -170,15 +150,9 @@ void sdInit(JsonObject packet)
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
-    dataStorage = SD.open("storage.json");
-    dataStorage.println(packet);
-    dataStorage.close();
-}
 
-void sdLoop(JsonObject packet)
-{
-    dataStorage = SD.open("storage.json");
-    dataStorage.println(packet);
+    // create storage file
+    dataStorage = SD.open("storage.json", FILE_WRITE);
     dataStorage.close();
 }
 
@@ -193,23 +167,11 @@ void setup()
     zxct1107Init();
     gravitydoInit();
     ms5Init();
-
-    StaticJsonDocument<256> packet;
-    JsonArray data = packet.createNestedArray("data");
-    sdInit(packet);
+    sdInit();
 }
 
 void loop()
 {
-    DynamicJsonDocument<2048> packet;
-    dataStorage = SD.open("storage.json");
-    char output[sizeof(packet)];
-    while (dataStorage.available())
-        Serial.write(dataStorage.read());
-    dataStorage.close();
-    deserializeJson(doc, Serial);
-    JsonArray data = doc["data"];
-
     //need to poll pressure for state change
     int32_t pressure = ms5.readPressure();
     if (pressure <= basePressure * 1.25)
@@ -220,24 +182,40 @@ void loop()
     switch (state)
     {
     case STATE_SURFACE:
-        rf95Loop(packet);
+        rf95Loop();
         break;
     case STATE_SUBMERGE:
         //poll oncer per hour while submerged
         if (millis() >= lastMeasure + POLLING_FREQ)
         {
             lastMeasure = millis();
-            data.add(millis());
-            mpu6050Loop(data);
-            bh1750Loop(data);
-            zxct1107Loop(data);
-            gravitydoLoop(data);
-            ms5Loop(data);
-            sdLoop(packet);
+
+            StaticJsonDocument<192> packet;
+
+            packet["timeStamp"] = millis();
+            sensors_event_t aEvent, gEvent, tEvent;
+            mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
+            packet["acceleration"][0] = aEvent.acceleration.x;
+            packet["acceleration"][1] = aEvent.acceleration.y;
+            packet["acceleration"][2] = aEvent.acceleration.z;
+            packet["orientation"][0] = gEvent.orientation.x;
+            packet["orientation"][1] = gEvent.orientation.y;
+            packet["orientation"][2] = gEvent.orientation.z;
+            packet["temperature"] = tEvent.temperature;
+            packet["ambientLight"] = bh1750Loop();
+            packet["salinity"] = zxct1107Loop();
+            packet["dissolvedOxygen"] = gravitydoLoop();
+            packet["pressure"] = ms5Loop();
+            serializeJsonPretty(packet, Serial);
+
+            // write to sd
+            dataStorage = SD.open("storage.json", FILE_WRITE);
+            dataStorage.write(packet);
+            dataStorage.close();
         }
         break;
     default:
-        rf95Loop(packet);
+        rf95Loop();
         break;
     }
 
