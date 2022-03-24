@@ -25,11 +25,7 @@ SOFTWARE
 #ifndef BASE_GRAV_H
 #define BASE_GRAV_H
 
-#if ARDUINO >= 100
 #include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
 
 class Gravity_Base{
 	public:

@@ -1,5 +1,5 @@
 #include "Arduino.h"
-
+#include <cmath>
 #include "zxct.h"
 
 ZXCT1107::ZXCT1107(uint8_t pin)
@@ -12,13 +12,23 @@ bool ZXCT1107::begin()
     return true;
 }
 
-float ZXCT1107::read_voltage()
+void ZXCT1107::read_current()
 {
-    float voltage_mV = 0;
+    current = analogRead(pin);
+}
+void ZXCT1107::read_voltage()
+{
+    voltage = analogRead(pin);
+}
 
-    // Your code here
-    voltage_mV += analogRead(this->pin);
+uint8_t ZXCT1107::read_salinity()
+{
+    read_voltage();
+    read_current();
 
-    
-    return voltage_mV;
+    uint8_t salinity;
+    uint8_t conductivity = current / voltage;
+
+    salinity = (pow(conductivity, 1.0878)) * 0.4665;
+    return salinity;
 }

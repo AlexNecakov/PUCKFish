@@ -5,12 +5,14 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <SD.h>
 #include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
 #include <BH1750.h>
 #include <zxct.h>
 #include <do_grav.h>
+#include <ms5.h>
 
 // Pin Defines
 #define RF95_CS 8
@@ -21,8 +23,10 @@
 #define GRAVITYDO_PIN A1
 #define VBAT_PIN A7
 
+#define SD_CS 1
+
 // Value Defines
-#define POLLING_FREQ 5
+#define POLLING_FREQ 5000
 #define RF95_FREQ 915.0
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
@@ -35,60 +39,62 @@ Adafruit_MPU6050 mpu6050;
 BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
+MS5 ms5;
+File dataStorage;
 
-DynamicJsonDocument packet(200);
-JsonArray timeStamp = packet.createNestedArray("timeStamp");
-JsonArray dissolvedOxygen = packet.createNestedArray("dissolvedOxygen");
-JsonArray ambientLight = packet.createNestedArray("ambientLight");
-JsonArray salinity = packet.createNestedArray("salinity");
-JsonArray depth = packet.createNestedArray("depth");
-JsonArray temperature = packet.createNestedArray("temperature");
-JsonArray accelerationX = packet.createNestedArray("accelerationX");
-JsonArray accelerationY = packet.createNestedArray("accelerationY");
-JsonArray accelerationZ = packet.createNestedArray("accelerationZ");
-JsonArray orientationX = packet.createNestedArray("orientationX");
-JsonArray orientationY = packet.createNestedArray("orientationY");
-JsonArray orientationZ = packet.createNestedArray("orientationZ");
+// JsonArray timeStamp = packet.createNestedArray("timeStamp");
+// //JsonArray dissolvedOxygen = packet.createNestedArray("dissolvedOxygen");
+// JsonArray ambientLight = packet.createNestedArray("ambientLight");
+//JsonArray salinity = packet.createNestedArray("salinity");
+// //JsonArray depth = packet.createNestedArray("depth");
+// JsonArray temperature = packet.createNestedArray("temperature");
+// JsonArray accelerationX = packet.createNestedArray("accelerationX");
+// JsonArray accelerationY = packet.createNestedArray("accelerationY");
+// JsonArray accelerationZ = packet.createNestedArray("accelerationZ");
+// JsonArray orientationX = packet.createNestedArray("orientationX");
+// JsonArray orientationY = packet.createNestedArray("orientationY");
+// JsonArray orientationZ = packet.createNestedArray("orientationZ");
 
 //mpu6050 accel/gyro/temp sensor code
 int mpu6050Init()
 {
-    while (!mpu.begin())
+    while (!mpu6050.begin())
         Serial.println("MPU6050\tInit failed");
     Serial.println("MPU6050\tInit success");
     return 0;
 }
 
-void mpu6050Loop()
+void mpu6050Loop(JsonObject packet)
 {
     sensors_event_t aEvent, gEvent, tEvent;
     mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-    accelerationX.add(aEvent.acceleration.x);
-    accelerationY.add(aEvent.acceleration.y);
-    accelerationZ.add(aEvent.acceleration.z);
-    orientationX.add(gEvent.gyro.x);
-    orientationY.add(gEvent.gyro.y);
-    orientationZ.add(gEvent.gyro.z);
+    packet["accelerationX"] = (aEvent.acceleration.x);
+    packet["accelerationY"] = (aEvent.acceleration.y);
+    packet["accelerationZ"] = (aEvent.acceleration.z);
+    packet["orientationX"] = (gEvent.gyro.x);
+    packet["orientationY"] = (gEvent.gyro.y);
+    packet["orientationZ"] = (gEvent.gyro.z);
+    packet["temperature"] = (tEvent.temperature);
 }
 
 //bh1750 light sensor code
 int bh1750Init()
 {
-    while (!lightMeter.begin(lightMeter.begin(BH1750::BH1750_MODE)))
+    while (!bh1750.begin(BH1750::BH1750_MODE))
         Serial.println("BH1750\tInit failed");
     Serial.println("BH1750\tInit success");
 
     return 0;
 }
 
-void bh1750Loop()
+void bh1750Loop(JsonObject packet)
 {
-    while (!lightMeter.measurementReady(true))
+    while (!bh1750.measurementReady(true))
     {
         yield();
     }
-    ambientLight.add(lightMeter.readLightLevel());
-    lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
+    packet["ambientLight"] = (bh1750.readLightLevel());
+    bh1750.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
 }
 
 //zxct1107 salinity sensor code
@@ -101,9 +107,9 @@ int zxct1107Init()
     return 0;
 }
 
-void zxct1107Loop()
+void zxct1107Loop(JsonObject packet)
 {
-    salinity.add(zxct1107.read_voltage());
+    packet["salinity"] = (zxct1107.read_salinity());
 }
 
 //gravity dissolved oxygen sensor code
@@ -113,15 +119,30 @@ int gravitydoInit()
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
 
-    gravitydo.cal();
-    Serial.println("GRAVITYDO\tCalibrated");
+    // gravitydo.cal();
+    // Serial.println("GRAVITYDO\tCalibrated");
 
     return 0;
 }
 
-void gravitydoLoop()
+void gravitydoLoop(JsonObject packet)
 {
-    dissolvedOxygen.add(gravitydo.read_do_percentage());
+    packet["dissolvedOxygen"] = (gravitydo.read_do_percentage());
+}
+
+//pressure sensor code
+int ms5Init()
+{
+    while (!ms5.begin())
+        Serial.println("MS5\tInit failed");
+    Serial.println("MS5\tInit success");
+
+    return 0;
+}
+
+void ms5Loop(JsonObject packet)
+{
+    packet["pressure"] = (ms5.readPressure());
 }
 
 //rfm95 radio code
@@ -143,10 +164,30 @@ int rf95Init()
     return 0;
 }
 
-void rf95Loop()
+void rf95Loop(JsonObject packet)
 {
-    rf95.send(packet, sizeof(packet));
+    uint8_t output[sizeof(packet)];
+    serializeJson(packet, output);
+    serializeJsonPretty(packet, Serial);
+    rf95.send(output, sizeof(output));
     rf95.waitPacketSent();
+}
+
+// sd card code
+int sdInit()
+{
+    Serial.println("SD\tInitializing");
+    while (!SD.begin(SD_CS))
+        Serial.println("SD\tInitialization failed!");
+
+    return 0;
+}
+
+void sdLoop(JsonObject packet)
+{
+    dataStorage = SD.open("storage.json");
+    dataStorage.println(packet);
+    dataStorage.close();
 }
 
 void setup()
@@ -154,30 +195,38 @@ void setup()
     Serial.begin(9600);
     Wire.begin();
 
+    while (!Serial)
+        delay(10);
     //implement when pressure sensor is here
     isSurfaced = false;
 
     rf95Init();
+    sdInit();
     mpu6050Init();
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
+    ms5Init();
 }
 
 void loop()
 {
+    StaticJsonDocument<300> doc;
+    JsonObject packet = doc.to<JsonObject>();
     //get readings
     if (!isSurfaced)
     {
-        timeStamp.add(millis());
-        mpu6050Loop();
-        bh1750Loop();
-        zxct1107Loop();
-        gravitydoLoop();
+        packet["timeStamp"] = (millis());
+        mpu6050Loop(packet);
+        bh1750Loop(packet);
+        zxct1107Loop(packet);
+        gravitydoLoop(packet);
+        ms5Loop(packet);
     }
-    wait(POLLING_FREQ);
+    delay(POLLING_FREQ);
 
     //send when surfaced (currently debug code)
-    if(packNum++%POLLING_FREQ == 0)
-        rf95Loop();
+    //if(packNum++%POLLING_FREQ == 0)
+    sdLoop(packet);
+    rf95Loop(packet);
 }
