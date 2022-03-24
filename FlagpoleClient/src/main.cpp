@@ -82,7 +82,8 @@ void zxct1107Init()
 
 int16_t zxct1107Loop()
 {
-    int16_t salinity = zxct1107.read_salinity() return salinity;
+    int16_t salinity = zxct1107.read_salinity();
+    return salinity;
 }
 
 //gravity dissolved oxygen sensor code
@@ -139,13 +140,13 @@ void rf95Init()
 void rf95Loop()
 {
     dataStorage = SD.open("storage.json", FILE_READ);
-    rf95.send(output, sizeof(output));
+    rf95.send(dataStorage, sizeof(dataStorage));
     rf95.waitPacketSent();
     dataStorage.close();
 }
 
 // sd card code
-void sdInit(JsonObject packet)
+void sdInit()
 {
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
@@ -179,9 +180,10 @@ void loop()
     else if (pressure > basePressure * 1.25)
         state = STATE_SUBMERGE;
 
+
     switch (state)
     {
-    case STATE_SURFACE:
+    case STATE_SURFACE://when surfaced transmit every 10 seconds
         rf95Loop();
         break;
     case STATE_SUBMERGE:
@@ -210,7 +212,7 @@ void loop()
 
             // write to sd
             dataStorage = SD.open("storage.json", FILE_WRITE);
-            dataStorage.write(packet);
+            serializeJson(packet, dataStorage);
             dataStorage.close();
         }
         break;
