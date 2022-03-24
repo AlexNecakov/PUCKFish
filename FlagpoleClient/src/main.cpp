@@ -14,25 +14,30 @@
 #include <do_grav.h>
 #include <ms5.h>
 
+// State Defines
+#define STATE_SURFACE 0
+#define STATE_SUBMERGE 1
+
 // Pin Defines
-#define RF95_CS 8
-#define RF95_RST 4
 #define RF95_INT 3
+#define RF95_RST 4
+#define RF95_CS 8
+#define SD_CS 12
 
 #define ZXCT1107_PIN A0
 #define GRAVITYDO_PIN A1
 #define VBAT_PIN A7
 
-#define SD_CS 1
-
 // Value Defines
-#define POLLING_FREQ 5000
+#define POLLING_FREQ 3600000
 #define RF95_FREQ 915.0
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 
-bool isSurfaced;
-int packNum = 0;
+uint8_t state;
+uint8_t packetNum;
+int32_t basePressure;
+unsigned long lastMeasure;
 
 RH_RF95 rf95(RF95_CS, RF95_INT);
 Adafruit_MPU6050 mpu6050;
@@ -42,111 +47,99 @@ Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 MS5 ms5;
 File dataStorage;
 
-// JsonArray timeStamp = packet.createNestedArray("timeStamp");
-// //JsonArray dissolvedOxygen = packet.createNestedArray("dissolvedOxygen");
-// JsonArray ambientLight = packet.createNestedArray("ambientLight");
-//JsonArray salinity = packet.createNestedArray("salinity");
-// //JsonArray depth = packet.createNestedArray("depth");
-// JsonArray temperature = packet.createNestedArray("temperature");
-// JsonArray accelerationX = packet.createNestedArray("accelerationX");
-// JsonArray accelerationY = packet.createNestedArray("accelerationY");
-// JsonArray accelerationZ = packet.createNestedArray("accelerationZ");
-// JsonArray orientationX = packet.createNestedArray("orientationX");
-// JsonArray orientationY = packet.createNestedArray("orientationY");
-// JsonArray orientationZ = packet.createNestedArray("orientationZ");
-
 //mpu6050 accel/gyro/temp sensor code
-int mpu6050Init()
+void mpu6050Init()
 {
     while (!mpu6050.begin())
         Serial.println("MPU6050\tInit failed");
     Serial.println("MPU6050\tInit success");
-    return 0;
 }
 
-void mpu6050Loop(JsonObject packet)
+void mpu6050Loop(JsonArray packet)
 {
     sensors_event_t aEvent, gEvent, tEvent;
     mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-    packet["accelerationX"] = (aEvent.acceleration.x);
-    packet["accelerationY"] = (aEvent.acceleration.y);
-    packet["accelerationZ"] = (aEvent.acceleration.z);
-    packet["orientationX"] = (gEvent.gyro.x);
-    packet["orientationY"] = (gEvent.gyro.y);
-    packet["orientationZ"] = (gEvent.gyro.z);
-    packet["temperature"] = (tEvent.temperature);
+
+    float acceleration[3] = {aEvent.acceleration.x, aEvent.acceleration.y, aEvent.acceleration.z};
+    float orientation[3] = {gEvent.orientation.x, gEvent.orientation.y, gEvent.orientation.z};
+    float temperature = tEvent.temperature;
+
+    packet.add(acceleration[0]);
+    packet.add(acceleration[1]);
+    packet.add(acceleration[2]);
+    packet.add(orientation[0]);
+    packet.add(orientation[1]);
+    packet.add(orientation[2]);
+    packet.add(temperature);
 }
 
 //bh1750 light sensor code
-int bh1750Init()
+void bh1750Init()
 {
     while (!bh1750.begin(BH1750::BH1750_MODE))
         Serial.println("BH1750\tInit failed");
     Serial.println("BH1750\tInit success");
-
-    return 0;
 }
 
-void bh1750Loop(JsonObject packet)
+void bh1750Loop(JsonArray packet)
 {
-    while (!bh1750.measurementReady(true))
-    {
-        yield();
-    }
-    packet["ambientLight"] = (bh1750.readLightLevel());
+    float lux = bh1750.readLightLevel();
+
+    packet.add(lux);
+
     bh1750.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
 }
 
 //zxct1107 salinity sensor code
-int zxct1107Init()
+void zxct1107Init()
 {
     while (!zxct1107.begin())
         Serial.println("ZXCT1107\tInit failed");
     Serial.println("ZXCT1107\tInit success");
-
-    return 0;
 }
 
-void zxct1107Loop(JsonObject packet)
+void zxct1107Loop(JsonArray packet)
 {
-    packet["salinity"] = (zxct1107.read_salinity());
+
+    packet.add(zxct1107.read_salinity());
 }
 
 //gravity dissolved oxygen sensor code
-int gravitydoInit()
+void gravitydoInit()
 {
     while (!gravitydo.begin())
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
 
-    // gravitydo.cal();
-    // Serial.println("GRAVITYDO\tCalibrated");
-
-    return 0;
+    gravitydo.cal();
+    Serial.println("GRAVITYDO\tCalibrated");
 }
 
-void gravitydoLoop(JsonObject packet)
+void gravitydoLoop(JsonArray packet)
 {
-    packet["dissolvedOxygen"] = (gravitydo.read_do_percentage());
+    float dissolvedOxygen = gravitydo.read_do_percentage();
+    packet.add(dissolvedOxygen);
 }
 
 //pressure sensor code
-int ms5Init()
+void ms5Init()
 {
     while (!ms5.begin())
         Serial.println("MS5\tInit failed");
-    Serial.println("MS5\tInit success");
+    basePressure = ms5.readPressure();
 
-    return 0;
+    Serial.println("MS5\tInit success");
 }
 
-void ms5Loop(JsonObject packet)
+void ms5Loop(JsonArray packet)
 {
-    packet["pressure"] = (ms5.readPressure());
+    int32_t pressure = ms5.readPressure();
+
+    packet.add(pressure);
 }
 
 //rfm95 radio code
-int rf95Init()
+void rf95Init()
 {
     Serial.println("RF95\tInitializing");
     while (!rf95.init())
@@ -160,11 +153,9 @@ int rf95Init()
     Serial.println(RF95_FREQ);
 
     rf95.setTxPower(23, false);
-
-    return 0;
 }
 
-void rf95Loop(JsonObject packet)
+void rf95Loop(StaticJsonDocument packet)
 {
     uint8_t output[sizeof(packet)];
     serializeJson(packet, output);
@@ -174,13 +165,14 @@ void rf95Loop(JsonObject packet)
 }
 
 // sd card code
-int sdInit()
+void sdInit(JsonObject packet)
 {
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
-
-    return 0;
+    dataStorage = SD.open("storage.json");
+    dataStorage.println(packet);
+    dataStorage.close();
 }
 
 void sdLoop(JsonObject packet)
@@ -195,38 +187,59 @@ void setup()
     Serial.begin(9600);
     Wire.begin();
 
-    while (!Serial)
-        delay(10);
-    //implement when pressure sensor is here
-    isSurfaced = false;
-
     rf95Init();
-    sdInit();
     mpu6050Init();
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
     ms5Init();
+
+    StaticJsonDocument<256> packet;
+    JsonArray data = packet.createNestedArray("data");
+    sdInit(packet);
 }
 
 void loop()
 {
-    StaticJsonDocument<300> doc;
-    JsonObject packet = doc.to<JsonObject>();
-    //get readings
-    if (!isSurfaced)
-    {
-        packet["timeStamp"] = (millis());
-        mpu6050Loop(packet);
-        bh1750Loop(packet);
-        zxct1107Loop(packet);
-        gravitydoLoop(packet);
-        ms5Loop(packet);
-    }
-    delay(POLLING_FREQ);
+    DynamicJsonDocument<2048> packet;
+    dataStorage = SD.open("storage.json");
+    char output[sizeof(packet)];
+    while (dataStorage.available())
+        Serial.write(dataStorage.read());
+    dataStorage.close();
+    deserializeJson(doc, Serial);
+    JsonArray data = doc["data"];
 
-    //send when surfaced (currently debug code)
-    //if(packNum++%POLLING_FREQ == 0)
-    sdLoop(packet);
-    rf95Loop(packet);
+    //need to poll pressure for state change
+    int32_t pressure = ms5.readPressure();
+    if (pressure <= basePressure * 1.25)
+        state = STATE_SURFACE;
+    else if (pressure > basePressure * 1.25)
+        state = STATE_SUBMERGE;
+
+    switch (state)
+    {
+    case STATE_SURFACE:
+        rf95Loop(packet);
+        break;
+    case STATE_SUBMERGE:
+        //poll oncer per hour while submerged
+        if (millis() >= lastMeasure + POLLING_FREQ)
+        {
+            lastMeasure = millis();
+            data.add(millis());
+            mpu6050Loop(data);
+            bh1750Loop(data);
+            zxct1107Loop(data);
+            gravitydoLoop(data);
+            ms5Loop(data);
+            sdLoop(packet);
+        }
+        break;
+    default:
+        rf95Loop(packet);
+        break;
+    }
+
+    delay(10000);
 }

@@ -21,7 +21,7 @@ void ZXCT1107::read_voltage()
     voltage = analogRead(pin);
 }
 
-uint8_t ZXCT1107::read_salinity()
+uint16_t ZXCT1107::read_salinity()
 {
     read_voltage();
     read_current();

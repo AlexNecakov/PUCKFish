@@ -16,13 +16,13 @@ public:
 
     void read_voltage();
     void read_current();
-    uint8_t read_salinity();
+    uint16_t read_salinity();
 
 protected:
 private:
     uint8_t pin;
-    uint8_t voltage;
-    uint8_t current;
+    uint16_t voltage;
+    uint16_t current;
 };
 
 #endif
