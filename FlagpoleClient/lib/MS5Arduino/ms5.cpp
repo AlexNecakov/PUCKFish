@@ -29,11 +29,9 @@
  */
 MS5::MS5(byte addr)
 {
-    Serial.println("constructor");
     MS5_I2CADDR = addr;
     // Allows user to change TwoWire instance
     I2C = &Wire;
-    Serial.println("constructor end");
 }
 
 /**
@@ -44,7 +42,6 @@ MS5::MS5(byte addr)
  */
 bool MS5::begin(byte addr, TwoWire *i2c)
 {
-    Serial.println("begin start");
     // I2C is expected to be initialized outside this library
     // But, allows a different address and TwoWire instance to be used
     if (i2c)
@@ -56,10 +53,8 @@ bool MS5::begin(byte addr, TwoWire *i2c)
         MS5_I2CADDR = addr;
     }
 
-    Serial.println("begin end");
-    reset();
     // Reset sensor and read PROM for calibration
-    return (readPROM());
+    return (reset() && readPROM());
 }
 
 /**
@@ -68,8 +63,6 @@ bool MS5::begin(byte addr, TwoWire *i2c)
  */
 bool MS5::reset()
 {
-
-    Serial.println("reset start");
     // default transmission result to a value out of normal range
     byte ack = 5;
 
@@ -78,7 +71,6 @@ bool MS5::reset()
     __wire_write(MS5_RESET);
     ack = I2C->endTransmission();
 
-    Serial.println("reset end transmit");
     // Wait a few moments to wake up
     delay(10);
 
@@ -87,6 +79,18 @@ bool MS5::reset()
     {
     case 0:
         return true;
+    case 1: // too long for transmit buffer
+        Serial.println(F("[MS5] ERROR: too long for transmit buffer"));
+        break;
+    case 2: // received NACK on transmit of address
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of address"));
+        break;
+    case 3: // received NACK on transmit of data
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of data"));
+        break;
+    case 4: // other error
+        Serial.println(F("[MS5] ERROR: other error"));
+        break;
     default:
         Serial.println(F("[MS5] ERROR: reset error"));
         break;
@@ -105,8 +109,6 @@ bool MS5::reset()
  */
 bool MS5::readPROM()
 {
-
-    Serial.println("readprom start");
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
@@ -120,7 +122,6 @@ bool MS5::readPROM()
     }
     ack = I2C->endTransmission();
 
-    Serial.println("readprom endtransmit");
     // Wait a few moments to wake up
     delay(10);
 
@@ -129,6 +130,18 @@ bool MS5::readPROM()
     {
     case 0:
         return true;
+    case 1: // too long for transmit buffer
+        Serial.println(F("[MS5] ERROR: too long for transmit buffer"));
+        break;
+    case 2: // received NACK on transmit of address
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of address"));
+        break;
+    case 3: // received NACK on transmit of data
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of data"));
+        break;
+    case 4: // other error
+        Serial.println(F("[MS5] ERROR: other error"));
+        break;
     default:
         Serial.println(F("[MS5] Read PROM error"));
         break;

@@ -93,7 +93,7 @@ void gravitydoInit()
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
 
-    gravitydo.cal();
+    //gravitydo.cal();
     Serial.println("GRAVITYDO\tCalibrated");
 }
 
@@ -139,15 +139,14 @@ void rf95Init()
 
 void rf95Loop()
 {
-    // dataStorage = SD.open("storage.json", FILE_READ);
-    // String buffer;
-    // while (dataStorage.available())
-    // {
-    //     buffer.append(dataStorage.read());
-    // }
-    // rf95.send(buffer, sizeof(buffer));
-    // rf95.waitPacketSent();
-    // dataStorage.close();
+    dataStorage = SD.open("storage.json", FILE_READ);
+    StaticJsonDocument<192000> doc;
+    deserializeJson(doc, dataStorage);
+    uint8_t output[sizeof(doc)];
+    serializeJson(doc, output);
+    rf95.send(output, sizeof(output));
+    rf95.waitPacketSent();
+    dataStorage.close();
 }
 
 // sd card code
@@ -168,7 +167,7 @@ void setup()
     Wire.begin();
 
     delay(5000);
-    
+
     rf95Init();
     mpu6050Init();
     bh1750Init();
