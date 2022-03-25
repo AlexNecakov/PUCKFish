@@ -12,16 +12,16 @@
 // Define milliseconds delay for ESP8266 platform
 #if defined(ESP8266)
 
-#  include <pgmspace.h>
-#  define _delay_ms(ms) delayMicroseconds((ms)*1000)
+#include <pgmspace.h>
+#define _delay_ms(ms) delayMicroseconds((ms)*1000)
 
 // Use __delay_ms_ms from utils for AVR-based platforms
 #elif defined(__avr__)
-#  include <util/delay.h>
+#include <util/delay.h>
 
 // Use Wiring's delay for compability with another platforms
 #else
-#  define _delay_ms(ms) delay(ms)
+#define _delay_ms(ms) delay(ms)
 #endif
 
 // Legacy Wire.write() function fix
@@ -83,7 +83,7 @@ bool MS5::reset()
 
     // Send mode to sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write((uint8_t)MS5_RESET);
+    __wire_write(MS5_RESET);
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
@@ -127,13 +127,17 @@ bool MS5::readPROM()
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write((uint8_t)MS5_READ_PROM);
-    I2C->requestFrom(MS5_I2CADDR, 12);
+    __wire_write(MS5_READ_PROM);
     for (int i = 0; i < 6; i++)
     {
+        I2C->requestFrom(MS5_I2CADDR, 2);
         calib[i] = __wire_read();
         calib[i] <<= 8;
         calib[i] |= __wire_read();
+        Serial.print(calib[i]);
+        Serial.print(" calib ");
+        Serial.print(i);
+        Serial.println("");
     }
     ack = I2C->endTransmission();
 
@@ -180,9 +184,9 @@ bool MS5::conversion(bool mode)
 
     I2C->beginTransmission(MS5_I2CADDR);
     if (mode == D1_CONV_MODE)
-        __wire_write((uint8_t)MS5_D1_CONV_SEQ);
+        __wire_write(MS5_D1_CONV_SEQ);
     else
-        __wire_write((uint8_t)MS5_D2_CONV_SEQ);
+        __wire_write(MS5_D2_CONV_SEQ);
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
@@ -209,14 +213,14 @@ bool MS5::conversion(bool mode)
 int32_t MS5::readTemperature()
 {
     // Measurement result will be stored here
-    int32_t temperature = -1.0;
+    int32_t temperature = -1;
 
     // d1 conversion sequence
     conversion(D2_CONV_MODE);
 
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write((uint8_t)MS5_READ_ADC);
+    __wire_write(MS5_READ_ADC);
     I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d2 = 0;
     d2 = __wire_read();
@@ -228,6 +232,8 @@ int32_t MS5::readTemperature()
 
     dt = d2 - calib[4] * 256;
     temperature = 2000 + dt * calib[5] / 8388608;
+    Serial.print(d2);
+    Serial.println(" - D2");
 
     return temperature;
 }
@@ -243,14 +249,14 @@ int32_t MS5::readPressure()
     readTemperature();
 
     // Measurement result will be stored here
-    int32_t pressure = -1.0;
+    int32_t pressure = -1;
 
     // d1 conversion sequence
     conversion(D1_CONV_MODE);
 
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write((uint8_t)MS5_READ_ADC);
+    __wire_write(MS5_READ_ADC);
     I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d1 = 0;
     d1 = __wire_read();
@@ -264,5 +270,7 @@ int32_t MS5::readPressure()
     int64_t sens = calib[0] * 32768 + ((calib[2] * dt) / 256);
     pressure = (d1 * sens / 2097152 - off) / 8192;
 
+    Serial.print(d1);
+    Serial.println(" - D1");
     return pressure;
 }

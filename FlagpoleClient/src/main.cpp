@@ -30,6 +30,7 @@
 
 // Value Defines
 #define MILLIS_HR 3600000
+#define MILLIS_MIN 60000
 #define MILLIS_30_SEC 30000
 #define MILLIS_10_SEC 10000
 #define MILLIS_SEC 1000
@@ -117,7 +118,7 @@ float gravitydoLoop()
 void ms5Init()
 {
     Serial.println("MS5\tInitializing");
-    while (!ms5.begin(MS5_I2C_ADDRESS))
+    while (!ms5.begin())
         Serial.println("MS5\tInit failed");
     basePressure = ms5.readPressure();
 
@@ -151,7 +152,7 @@ void rf95Init()
 void rf95Loop()
 {
     dataStorage = SD.open("storage.json", FILE_READ);
-    StaticJsonDocument<192000> doc;
+    StaticJsonDocument<256000> doc;
     deserializeJson(doc, dataStorage);
     uint8_t output[sizeof(doc)];
     serializeJson(doc, output);
@@ -195,7 +196,7 @@ void loop()
     int32_t pressure = ms5.readPressure();
     if (pressure <= basePressure * 1.25)
         state = STATE_SUBMERGE;
-        //state = STATE_SURFACE;
+    //state = STATE_SURFACE;
     else if (pressure > basePressure * 1.25)
         state = STATE_SUBMERGE;
 
@@ -226,7 +227,7 @@ void loop()
             packet["salinity"] = zxct1107Loop();
             packet["dissolvedOxygen"] = gravitydoLoop();
             packet["pressure"] = ms5Loop();
-            serializeJsonPretty(packet, Serial);
+            //serializeJsonPretty(packet, Serial);
 
             // write to sd
             // dataStorage = SD.open("storage.json", FILE_WRITE);
@@ -239,5 +240,5 @@ void loop()
         break;
     }
 
-    delay(10000);
+    //delay(10000);
 }
