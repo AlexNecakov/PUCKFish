@@ -130,7 +130,7 @@ bool MS5::readPROM()
     __wire_write(MS5_READ_PROM);
     for (int i = 0; i < 6; i++)
     {
-        I2C->requestFrom(MS5_I2CADDR, 2);
+        I2C->requestFrom(MS5_I2CADDR, 2, false);
         calib[i] = __wire_read();
         calib[i] <<= 8;
         calib[i] |= __wire_read();
@@ -190,7 +190,7 @@ bool MS5::conversion(bool mode)
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(20);
 
     // Check result code
     switch (ack)
@@ -213,7 +213,7 @@ bool MS5::conversion(bool mode)
 int32_t MS5::readTemperature()
 {
     // Measurement result will be stored here
-    int32_t temperature = -1;
+    int32_t temperature = 0;
 
     // d1 conversion sequence
     conversion(D2_CONV_MODE);
@@ -221,7 +221,7 @@ int32_t MS5::readTemperature()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom(MS5_I2CADDR, 3);
+    I2C->requestFrom(MS5_I2CADDR, 3, false);
     int32_t d2 = 0;
     d2 = __wire_read();
     d2 <<= 8;
@@ -249,7 +249,7 @@ int32_t MS5::readPressure()
     readTemperature();
 
     // Measurement result will be stored here
-    int32_t pressure = -1;
+    int32_t pressure = 0;
 
     // d1 conversion sequence
     conversion(D1_CONV_MODE);
@@ -257,7 +257,7 @@ int32_t MS5::readPressure()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom(MS5_I2CADDR, 3);
+    I2C->requestFrom(MS5_I2CADDR, 3, false);
     int32_t d1 = 0;
     d1 = __wire_read();
     d1 <<= 8;

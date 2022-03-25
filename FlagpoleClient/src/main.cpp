@@ -5,7 +5,8 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
-#include <SD.h>
+#include <SdFat.h>
+#include <sdios.h>
 #include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
@@ -40,6 +41,7 @@
 #define MS5_I2C_ADDRESS 0x76
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
+#define SPI_SPEED SD_SCK_MHZ(4)
 
 uint8_t state;
 uint8_t packetNum;
@@ -52,6 +54,7 @@ BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 MS5 ms5(MS5_I2C_ADDRESS);
+SdFat sd;
 File dataStorage;
 
 //mpu6050 accel/gyro/temp sensor code
@@ -152,7 +155,7 @@ void rf95Init()
 void rf95Loop()
 {
     dataStorage = SD.open("storage.json", FILE_READ);
-    StaticJsonDocument<256000> doc;
+    StaticJsonDocument<192> doc;
     deserializeJson(doc, dataStorage);
     uint8_t output[sizeof(doc)];
     serializeJson(doc, output);
@@ -164,6 +167,8 @@ void rf95Loop()
 // sd card code
 void sdInit()
 {
+    pinMode(SS, OUTPUT);
+    pinMode(SD_CS, OUTPUT);
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
@@ -173,21 +178,39 @@ void sdInit()
     dataStorage.close();
 }
 
+void ms5ManTest()
+{
+    Wire.begin(0x76);
+    Wire.write(0x1E);
+    delay(100);
+    Wire.write(0xA2);
+    Serial.print(Wire.requestFrom(0x76, 1));
+    Serial.println("");
+    Serial.print(Wire.available());
+    Serial.println("");
+    int calib = Wire.read();
+    // calib <<= 8;
+    // calib |= Wire.read();
+    Serial.print(calib);
+    Serial.print(" calib ");
+    Serial.println("");
+    delay(20);
+}
+
 void setup()
 {
     Serial.begin(9600);
     Wire.begin();
-
     delay(5000);
 
-    rf95Init();
+    //rf95Init();
     mpu6050Init();
     ms5Init();
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
+    sdInit();
     lastMeasure = millis();
-    //sdInit();
 }
 
 void loop()
@@ -196,7 +219,7 @@ void loop()
     int32_t pressure = ms5.readPressure();
     if (pressure <= basePressure * 1.25)
         state = STATE_SUBMERGE;
-    //state = STATE_SURFACE;
+        //state = STATE_SURFACE;
     else if (pressure > basePressure * 1.25)
         state = STATE_SUBMERGE;
 
@@ -229,10 +252,10 @@ void loop()
             packet["pressure"] = ms5Loop();
             //serializeJsonPretty(packet, Serial);
 
-            // write to sd
-            // dataStorage = SD.open("storage.json", FILE_WRITE);
-            // serializeJson(packet, dataStorage);
-            // dataStorage.close();
+            //write to sd
+            dataStorage = SD.open("storage.json", FILE_WRITE);
+            serializeJson(packet, dataStorage);
+            dataStorage.close();
         }
         break;
     default:
