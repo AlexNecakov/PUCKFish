@@ -22,14 +22,19 @@
 #define RF95_INT 3
 #define RF95_RST 4
 #define RF95_CS 8
-#define SD_CS 12
+#define SD_CS 10
 
 #define ZXCT1107_PIN A0
 #define GRAVITYDO_PIN A1
 #define VBAT_PIN A7
 
 // Value Defines
-#define POLLING_FREQ 3600000
+#define MILLIS_HR 3600000
+#define MILLIS_30_SEC 30000
+#define MILLIS_10_SEC 10000
+#define MILLIS_SEC 1000
+#define POLLING_FREQ MILLIS_10_SEC
+
 #define RF95_FREQ 915.0
 #define MS5_I2C_ADDRESS 0x76
 #define BH1750_I2C_ADDRESS 0x23
@@ -51,6 +56,7 @@ File dataStorage;
 //mpu6050 accel/gyro/temp sensor code
 void mpu6050Init()
 {
+    Serial.println("MPU6050\tInitializing");
     while (!mpu6050.begin())
         Serial.println("MPU6050\tInit failed");
     Serial.println("MPU6050\tInit success");
@@ -59,6 +65,7 @@ void mpu6050Init()
 //bh1750 light sensor code
 void bh1750Init()
 {
+    Serial.println("BH1750\tInitializing");
     while (!bh1750.begin(BH1750::BH1750_MODE))
         Serial.println("BH1750\tInit failed");
     Serial.println("BH1750\tInit success");
@@ -76,6 +83,7 @@ float bh1750Loop()
 //zxct1107 salinity sensor code
 void zxct1107Init()
 {
+    Serial.println("ZXCT1107\tInitializing");
     while (!zxct1107.begin())
         Serial.println("ZXCT1107\tInit failed");
     Serial.println("ZXCT1107\tInit success");
@@ -90,6 +98,7 @@ int16_t zxct1107Loop()
 //gravity dissolved oxygen sensor code
 void gravitydoInit()
 {
+    Serial.println("GRAVITYDO\tInitializing");
     while (!gravitydo.begin())
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
@@ -107,7 +116,7 @@ float gravitydoLoop()
 //pressure sensor code
 void ms5Init()
 {
-    Serial.println("ms5 init");
+    Serial.println("MS5\tInitializing");
     while (!ms5.begin(MS5_I2C_ADDRESS))
         Serial.println("MS5\tInit failed");
     basePressure = ms5.readPressure();
@@ -176,7 +185,8 @@ void setup()
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
-    sdInit();
+    lastMeasure = millis();
+    //sdInit();
 }
 
 void loop()
@@ -184,7 +194,8 @@ void loop()
     //need to poll pressure for state change
     int32_t pressure = ms5.readPressure();
     if (pressure <= basePressure * 1.25)
-        state = STATE_SURFACE;
+        state = STATE_SUBMERGE;
+        //state = STATE_SURFACE;
     else if (pressure > basePressure * 1.25)
         state = STATE_SUBMERGE;
 
@@ -199,7 +210,7 @@ void loop()
         {
             lastMeasure = millis();
 
-            StaticJsonDocument<192> packet;
+            StaticJsonDocument<256> packet;
 
             packet["timeStamp"] = millis();
             sensors_event_t aEvent, gEvent, tEvent;
@@ -218,9 +229,9 @@ void loop()
             serializeJsonPretty(packet, Serial);
 
             // write to sd
-            dataStorage = SD.open("storage.json", FILE_WRITE);
-            serializeJson(packet, dataStorage);
-            dataStorage.close();
+            // dataStorage = SD.open("storage.json", FILE_WRITE);
+            // serializeJson(packet, dataStorage);
+            // dataStorage.close();
         }
         break;
     default:
