@@ -31,6 +31,7 @@
 // Value Defines
 #define POLLING_FREQ 3600000
 #define RF95_FREQ 915.0
+#define MS5_I2C_ADDRESS 0x76
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 
@@ -44,7 +45,7 @@ Adafruit_MPU6050 mpu6050;
 BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
-MS5 ms5;
+MS5 ms5(MS5_I2C_ADDRESS);
 File dataStorage;
 
 //mpu6050 accel/gyro/temp sensor code
@@ -106,7 +107,7 @@ float gravitydoLoop()
 //pressure sensor code
 void ms5Init()
 {
-    while (!ms5.begin())
+    while (!ms5.begin(MS5_I2C_ADDRESS))
         Serial.println("MS5\tInit failed");
     basePressure = ms5.readPressure();
 
@@ -168,13 +169,51 @@ void setup()
 
     delay(5000);
 
-    rf95Init();
-    mpu6050Init();
-    bh1750Init();
-    zxct1107Init();
-    gravitydoInit();
-    ms5Init();
-    sdInit();
+    byte error, address; //variable for error and I2C address
+    int nDevices;
+
+    Serial.println("Scanning...");
+
+    nDevices = 0;
+    for (address = 1; address < 127; address++)
+    {
+        // The i2c_scanner uses the return value of
+        // the Write.endTransmisstion to see if
+        // a device did acknowledge to the address.
+        Wire.beginTransmission(address);
+        error = Wire.endTransmission();
+
+        if (error == 0)
+        {
+            Serial.print("I2C device found at address 0x");
+            if (address < 16)
+                Serial.print("0");
+            Serial.print(address, HEX);
+            Serial.println("  !");
+            nDevices++;
+        }
+        else if (error == 4)
+        {
+            Serial.print("Unknown error at address 0x");
+            if (address < 16)
+                Serial.print("0");
+            Serial.println(address, HEX);
+        }
+    }
+    if (nDevices == 0)
+        Serial.println("No I2C devices found\n");
+    else
+        Serial.println("done\n");
+
+    delay(5000); // wait 5 seconds for the next I2C scan
+
+    // rf95Init();
+    // mpu6050Init();
+    // ms5Init();
+    // bh1750Init();
+    // zxct1107Init();
+    // gravitydoInit();
+    // sdInit();
 }
 
 void loop()

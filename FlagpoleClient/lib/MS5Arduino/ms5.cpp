@@ -9,6 +9,21 @@
 
 #include "MS5.h"
 
+// Define milliseconds delay for ESP8266 platform
+#if defined(ESP8266)
+
+#  include <pgmspace.h>
+#  define _delay_ms(ms) delayMicroseconds((ms)*1000)
+
+// Use __delay_ms_ms from utils for AVR-based platforms
+#elif defined(__avr__)
+#  include <util/delay.h>
+
+// Use Wiring's delay for compability with another platforms
+#else
+#  define _delay_ms(ms) delay(ms)
+#endif
+
 // Legacy Wire.write() function fix
 #if (ARDUINO >= 100)
 #define __wire_write(d) I2C->write(d)
@@ -68,11 +83,11 @@ bool MS5::reset()
 
     // Send mode to sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write(MS5_RESET);
+    __wire_write((uint8_t)MS5_RESET);
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    delay(10);
+    _delay_ms(10);
 
     // Check result code
     switch (ack)
@@ -112,7 +127,7 @@ bool MS5::readPROM()
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write(MS5_READ_PROM);
+    __wire_write((uint8_t)MS5_READ_PROM);
     I2C->requestFrom(MS5_I2CADDR, 12);
     for (int i = 0; i < 6; i++)
     {
@@ -123,7 +138,7 @@ bool MS5::readPROM()
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    delay(10);
+    _delay_ms(10);
 
     // Check result code
     switch (ack)
@@ -165,13 +180,13 @@ bool MS5::conversion(bool mode)
 
     I2C->beginTransmission(MS5_I2CADDR);
     if (mode == D1_CONV_MODE)
-        __wire_write(MS5_D1_CONV_SEQ);
+        __wire_write((uint8_t)MS5_D1_CONV_SEQ);
     else
-        __wire_write(MS5_D2_CONV_SEQ);
+        __wire_write((uint8_t)MS5_D2_CONV_SEQ);
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    delay(10);
+    _delay_ms(10);
 
     // Check result code
     switch (ack)
@@ -202,7 +217,7 @@ int32_t MS5::readTemperature()
 
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write(MS5_READ_ADC);
+    __wire_write((uint8_t)MS5_READ_ADC);
     I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d2 = 0;
     d2 = __wire_read();
@@ -236,7 +251,7 @@ int32_t MS5::readPressure()
 
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
-    __wire_write(MS5_READ_ADC);
+    __wire_write((uint8_t)MS5_READ_ADC);
     I2C->requestFrom(MS5_I2CADDR, 3);
     int32_t d1 = 0;
     d1 = __wire_read();
