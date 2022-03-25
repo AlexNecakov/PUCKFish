@@ -144,6 +144,7 @@ bool MS5::readPROM()
     switch (ack)
     {
     case 0:
+        Serial.println(F("[MS5] readprom success"));
         return true;
     case 1: // too long for transmit buffer
         Serial.println(F("[MS5] ERROR: too long for transmit buffer"));
@@ -208,7 +209,6 @@ bool MS5::conversion(bool mode)
  */
 int32_t MS5::readTemperature()
 {
-    readTemperature();
     // Measurement result will be stored here
     int32_t temperature = -1.0;
 
