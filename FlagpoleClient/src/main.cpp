@@ -139,10 +139,15 @@ void rf95Init()
 
 void rf95Loop()
 {
-    dataStorage = SD.open("storage.json", FILE_READ);
-    rf95.send(dataStorage, sizeof(dataStorage));
-    rf95.waitPacketSent();
-    dataStorage.close();
+    // dataStorage = SD.open("storage.json", FILE_READ);
+    // String buffer;
+    // while (dataStorage.available())
+    // {
+    //     buffer.append(dataStorage.read());
+    // }
+    // rf95.send(buffer, sizeof(buffer));
+    // rf95.waitPacketSent();
+    // dataStorage.close();
 }
 
 // sd card code
@@ -162,6 +167,8 @@ void setup()
     Serial.begin(9600);
     Wire.begin();
 
+    delay(5000);
+    
     rf95Init();
     mpu6050Init();
     bh1750Init();
@@ -180,10 +187,9 @@ void loop()
     else if (pressure > basePressure * 1.25)
         state = STATE_SUBMERGE;
 
-
     switch (state)
     {
-    case STATE_SURFACE://when surfaced transmit every 10 seconds
+    case STATE_SURFACE: //when surfaced transmit every 10 seconds
         rf95Loop();
         break;
     case STATE_SUBMERGE:

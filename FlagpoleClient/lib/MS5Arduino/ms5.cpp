@@ -9,21 +9,6 @@
 
 #include "MS5.h"
 
-// Define milliseconds delay for ESP8266 platform
-#if defined(ESP8266)
-
-#include <pgmspace.h>
-#define _delay_ms(ms) delayMicroseconds((ms)*1000)
-
-// Use _delay_ms from utils for AVR-based platforms
-#elif defined(__avr__)
-#include <util/delay.h>
-
-// Use Wiring's delay for compability with another platforms
-#else
-#define _delay_ms(ms) delay(ms)
-#endif
-
 // Legacy Wire.write() function fix
 #if (ARDUINO >= 100)
 #define __wire_write(d) I2C->write(d)
@@ -44,10 +29,11 @@
  */
 MS5::MS5(byte addr)
 {
-
+    Serial.println("constructor");
     MS5_I2CADDR = addr;
     // Allows user to change TwoWire instance
     I2C = &Wire;
+    Serial.println("constructor end");
 }
 
 /**
@@ -58,7 +44,7 @@ MS5::MS5(byte addr)
  */
 bool MS5::begin(byte addr, TwoWire *i2c)
 {
-
+    Serial.println("begin start");
     // I2C is expected to be initialized outside this library
     // But, allows a different address and TwoWire instance to be used
     if (i2c)
@@ -70,8 +56,10 @@ bool MS5::begin(byte addr, TwoWire *i2c)
         MS5_I2CADDR = addr;
     }
 
+    Serial.println("begin end");
+    reset();
     // Reset sensor and read PROM for calibration
-    return (reset() && readPROM());
+    return (readPROM());
 }
 
 /**
@@ -81,6 +69,7 @@ bool MS5::begin(byte addr, TwoWire *i2c)
 bool MS5::reset()
 {
 
+    Serial.println("reset start");
     // default transmission result to a value out of normal range
     byte ack = 5;
 
@@ -89,8 +78,9 @@ bool MS5::reset()
     __wire_write(MS5_RESET);
     ack = I2C->endTransmission();
 
+    Serial.println("reset end transmit");
     // Wait a few moments to wake up
-    _delay_ms(10);
+    delay(10);
 
     // Check result code
     switch (ack)
@@ -116,6 +106,7 @@ bool MS5::reset()
 bool MS5::readPROM()
 {
 
+    Serial.println("readprom start");
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
@@ -129,8 +120,9 @@ bool MS5::readPROM()
     }
     ack = I2C->endTransmission();
 
+    Serial.println("readprom endtransmit");
     // Wait a few moments to wake up
-    _delay_ms(10);
+    delay(10);
 
     // Check result code
     switch (ack)
@@ -166,7 +158,7 @@ bool MS5::conversion(bool mode)
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    delay(10);
 
     // Check result code
     switch (ack)
