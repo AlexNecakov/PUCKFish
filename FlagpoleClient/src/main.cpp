@@ -5,8 +5,7 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <SPI.h>
-#include <SdFat.h>
-#include <sdios.h>
+#include <SD.h>
 #include <Adafruit_Sensor.h>
 #include <RH_RF95.h>
 #include <Adafruit_MPU6050.h>
@@ -54,7 +53,6 @@ BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 MS5 ms5(MS5_I2C_ADDRESS);
-SdFat sd;
 File dataStorage;
 
 //mpu6050 accel/gyro/temp sensor code
@@ -138,6 +136,8 @@ int32_t ms5Loop()
 //rfm95 radio code
 void rf95Init()
 {
+    pinMode(SD_CS, OUTPUT);
+    digitalWrite(SD_CS, HIGH);
     Serial.println("RF95\tInitializing");
     while (!rf95.init())
         Serial.println("RF95\tInit failed");
@@ -154,6 +154,7 @@ void rf95Init()
 
 void rf95Loop()
 {
+
     dataStorage = SD.open("storage.json", FILE_READ);
     StaticJsonDocument<192> doc;
     deserializeJson(doc, dataStorage);
@@ -167,12 +168,15 @@ void rf95Loop()
 // sd card code
 void sdInit()
 {
-    pinMode(SS, OUTPUT);
-    pinMode(SD_CS, OUTPUT);
+    pinMode(RF95_CS, OUTPUT);
+    digitalWrite(RF95_CS, HIGH);
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
+    Serial.println("SD\tInitialization success");
 
+    
+    Serial.println("SD\tCreating Storage File");
     // create storage file
     dataStorage = SD.open("storage.json", FILE_WRITE);
     dataStorage.close();
@@ -201,6 +205,7 @@ void setup()
 {
     Serial.begin(9600);
     Wire.begin();
+    SPI.begin();
     delay(5000);
 
     //rf95Init();
@@ -218,10 +223,17 @@ void loop()
     //need to poll pressure for state change
     int32_t pressure = ms5.readPressure();
     if (pressure <= basePressure * 1.25)
+    {
         state = STATE_SUBMERGE;
         //state = STATE_SURFACE;
+    }
     else if (pressure > basePressure * 1.25)
+    {
+        // disable radio
+        pinMode(RF95_CS, OUTPUT);
+        digitalWrite(RF95_CS, HIGH);
         state = STATE_SUBMERGE;
+    }
 
     switch (state)
     {
