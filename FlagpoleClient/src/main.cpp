@@ -41,6 +41,7 @@
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 #define SPI_SPEED SD_SCK_MHZ(4)
+#define STORAGE_FILE "storage.txt"
 
 uint8_t state;
 uint8_t packetNum;
@@ -156,7 +157,7 @@ void rf95Init()
 void rf95Loop()
 {
 
-    dataStorage = SD.open("storage.json", FILE_READ);
+    dataStorage = SD.open(STORAGE_FILE, FILE_READ);
     StaticJsonDocument<192> doc;
     deserializeJson(doc, dataStorage);
     uint8_t output[sizeof(doc)];
@@ -178,7 +179,7 @@ void sdInit()
 
     Serial.println("SD\tCreating Storage File");
     // create storage file
-    dataStorage = SD.open("storage.json", FILE_WRITE);
+    dataStorage = SD.open(STORAGE_FILE, FILE_WRITE);
     dataStorage.close();
 }
 
@@ -207,7 +208,7 @@ void sdDumpFile()
     pinMode(RF95_CS, OUTPUT);
     digitalWrite(RF95_CS, HIGH);
 
-    dataStorage = SD.open("storage.txt", FILE_READ);
+    dataStorage = SD.open(STORAGE_FILE, FILE_READ);
 
     while (dataStorage.available())
     {
@@ -285,10 +286,9 @@ void loop()
             serializeJsonPretty(packet, Serial);
 
             //write to sd
-            dataStorage = SD.open("storage.txt", FILE_WRITE);
+            dataStorage = SD.open(STORAGE_FILE, FILE_WRITE);
             serializeJsonPretty(packet, dataStorage);
             dataStorage.close();
-            sdDumpFile();
         }
         break;
     default:
