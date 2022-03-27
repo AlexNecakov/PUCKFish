@@ -176,7 +176,6 @@ void sdInit()
         Serial.println("SD\tInitialization failed!");
     Serial.println("SD\tInitialization success");
 
-    
     Serial.println("SD\tCreating Storage File");
     // create storage file
     dataStorage = SD.open("storage.json", FILE_WRITE);
@@ -202,9 +201,26 @@ void ms5ManTest()
     delay(20);
 }
 
+void sdDumpFile()
+{
+    Serial.println("DUMPING SD");
+    pinMode(RF95_CS, OUTPUT);
+    digitalWrite(RF95_CS, HIGH);
+
+    dataStorage = SD.open("storage.txt", FILE_READ);
+
+    while (dataStorage.available())
+    {
+        Serial.write(dataStorage.read());
+    }
+    dataStorage.close();
+    Serial.println("DUMP COMPLETE");
+}
+
 void setup()
 {
     Serial.begin(9600);
+    Serial.println("Initializing");
     Wire.begin();
     SPI.begin();
     delay(5000);
@@ -216,6 +232,7 @@ void setup()
     zxct1107Init();
     gravitydoInit();
     sdInit();
+    Serial.println("Initialization Complete");
     lastMeasure = millis();
 }
 
@@ -268,9 +285,10 @@ void loop()
             serializeJsonPretty(packet, Serial);
 
             //write to sd
-            dataStorage = SD.open("storage.json", FILE_WRITE);
-            serializeJson(packet, dataStorage);
+            dataStorage = SD.open("storage.txt", FILE_WRITE);
+            serializeJsonPretty(packet, dataStorage);
             dataStorage.close();
+            sdDumpFile();
         }
         break;
     default:
