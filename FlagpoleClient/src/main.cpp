@@ -105,8 +105,9 @@ void gravitydoInit()
         Serial.println("GRAVITYDO\tInit failed");
     Serial.println("GRAVITYDO\tInit success");
 
-    //gravitydo.cal();
-    Serial.println("GRAVITYDO\tCalibrated");
+    Serial.print("GRAVITYDO\tFull saturation voltage calibrated to: ");
+    Serial.print(gravitydo.cal());
+    Serial.println("");
 }
 
 float gravitydoLoop()
@@ -208,9 +209,9 @@ void setup()
     SPI.begin();
     delay(5000);
 
-    //rf95Init();
+    rf95Init();
     mpu6050Init();
-    ms5Init();
+    //ms5Init();
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
@@ -220,25 +221,27 @@ void setup()
 
 void loop()
 {
-    //need to poll pressure for state change
-    int32_t pressure = ms5.readPressure();
-    if (pressure <= basePressure * 1.25)
-    {
-        state = STATE_SUBMERGE;
-        //state = STATE_SURFACE;
-    }
-    else if (pressure > basePressure * 1.25)
-    {
-        // disable radio
-        pinMode(RF95_CS, OUTPUT);
-        digitalWrite(RF95_CS, HIGH);
-        state = STATE_SUBMERGE;
-    }
+    // //need to poll pressure for state change
+    // int32_t pressure = ms5.readPressure();
+    // if (pressure <= basePressure * 1.25)
+    // {
+    //     state = STATE_SUBMERGE;
+    //     //state = STATE_SURFACE;
+    // }
+    // else if (pressure > basePressure * 1.25)
+    // {
+    //     // disable radio
+    //     pinMode(RF95_CS, OUTPUT);
+    //     digitalWrite(RF95_CS, HIGH);
+    //     state = STATE_SUBMERGE;
+    // }
 
+    state = STATE_SUBMERGE;
     switch (state)
     {
     case STATE_SURFACE: //when surfaced transmit every 10 seconds
         rf95Loop();
+        delay(MILLIS_10_SEC);
         break;
     case STATE_SUBMERGE:
         //poll oncer per hour while submerged
@@ -261,8 +264,8 @@ void loop()
             packet["ambientLight"] = bh1750Loop();
             packet["salinity"] = zxct1107Loop();
             packet["dissolvedOxygen"] = gravitydoLoop();
-            packet["pressure"] = ms5Loop();
-            //serializeJsonPretty(packet, Serial);
+            //packet["pressure"] = ms5Loop();
+            serializeJsonPretty(packet, Serial);
 
             //write to sd
             dataStorage = SD.open("storage.json", FILE_WRITE);
@@ -272,8 +275,7 @@ void loop()
         break;
     default:
         rf95Loop();
+        delay(MILLIS_10_SEC);
         break;
     }
-
-    //delay(10000);
 }
