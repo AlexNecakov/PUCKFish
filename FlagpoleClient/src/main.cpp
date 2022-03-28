@@ -88,9 +88,9 @@ void zxct1107Init()
     Serial.println("ZXCT1107\tInit success");
 }
 
-int16_t zxct1107Loop()
+float zxct1107Loop()
 {
-    int16_t salinity = zxct1107.read_salinity();
+    float salinity = zxct1107.read_salinity();
     return salinity;
 }
 
@@ -161,12 +161,12 @@ void rf95Loop()
         if (!dataStorage)
         {
             // no more files
-            Serial.println("**nomorefiles**");
+            //Serial.println("**nomorefiles**");
             break;
         }
 
-        Serial.print(dataStorage.name());
-        Serial.println("");
+        //Serial.print(dataStorage.name());
+        //Serial.println("");
 
         StaticJsonDocument<251> doc;
         deserializeJson(doc, dataStorage);
@@ -230,7 +230,7 @@ void setup()
 
     rf95Init();
     mpu6050Init();
-    //ms5Init();
+    ms5Init();
     bh1750Init();
     zxct1107Init();
     gravitydoInit();
@@ -282,7 +282,7 @@ void loop()
             packet["ambientLight"] = bh1750Loop();
             packet["salinity"] = zxct1107Loop();
             packet["dissolvedOxygen"] = gravitydoLoop();
-            //packet["pressure"] = ms5Loop();
+            packet["pressure"] = ms5Loop();
             //serializeJsonPretty(packet, Serial);
 
             //write to sd
@@ -293,7 +293,7 @@ void loop()
             serializeJson(packet, dataStorage);
             dataStorage.close();
 
-            rf95Loop();
+            //rf95Loop();
         }
         break;
     default:

@@ -87,7 +87,7 @@ bool MS5::reset()
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
@@ -142,7 +142,7 @@ bool MS5::readPROM()
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
@@ -190,7 +190,7 @@ bool MS5::conversion(bool mode)
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(20);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
