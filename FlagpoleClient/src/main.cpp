@@ -40,10 +40,8 @@
 #define MS5_I2C_ADDRESS 0x76
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
-#define SPI_SPEED SD_SCK_MHZ(4)
 
 uint8_t state;
-uint8_t packetNum;
 int32_t basePressure;
 unsigned long lastMeasure;
 
@@ -53,7 +51,6 @@ BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
 MS5 ms5(MS5_I2C_ADDRESS);
-File dataStorage;
 
 //mpu6050 accel/gyro/temp sensor code
 void mpu6050Init()
@@ -154,17 +151,29 @@ void rf95Init()
 
 void rf95Loop()
 {
-    
-    dataStorage.rewindDirectory();
+    File root = SD.open("/");
+    root.rewindDirectory();
 
     //loop through files
-    while (dataStorage.openNextFile())
+    while (true)
     {
+        File dataStorage = root.openNextFile();
+        if (!dataStorage)
+        {
+            // no more files
+            Serial.println("**nomorefiles**");
+            break;
+        }
+
+        Serial.print(dataStorage.name());
+        Serial.println("");
+
         StaticJsonDocument<251> doc;
         deserializeJson(doc, dataStorage);
         uint8_t output[RH_RF95_MAX_MESSAGE_LEN];
         serializeJson(doc, output);
         dataStorage.close();
+
         digitalWrite(SD_CS, HIGH);
 
         if (rf95.send(output, sizeof(output)))
@@ -177,6 +186,7 @@ void rf95Loop()
         }
     }
     rf95.sleep();
+    root.close();
 }
 
 // sd card code
@@ -187,8 +197,6 @@ void sdInit()
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
     Serial.println("SD\tInitialization success");
-
-    dataStorage.rewindDirectory();
 }
 
 void ms5ManTest()
@@ -219,9 +227,6 @@ void setup()
     pinMode(SD_CS, OUTPUT);
     pinMode(RF95_CS, OUTPUT);
     delay(5000);
-
-    Serial.print(RH_RF95_MAX_MESSAGE_LEN);
-    Serial.println("");
 
     rf95Init();
     mpu6050Init();
@@ -278,14 +283,14 @@ void loop()
             packet["salinity"] = zxct1107Loop();
             packet["dissolvedOxygen"] = gravitydoLoop();
             //packet["pressure"] = ms5Loop();
-            serializeJsonPretty(packet, Serial);
+            //serializeJsonPretty(packet, Serial);
 
             //write to sd
-            String fileName = lastMeasure + ".txt";
+            String fileName = String(lastMeasure) + ".txt";
             char fileNameBuf[fileName.length()];
             fileName.toCharArray(fileNameBuf, fileName.length());
-            dataStorage = SD.open(fileNameBuf, FILE_WRITE);
-            serializeJsonPretty(packet, dataStorage);
+            File dataStorage = SD.open(fileNameBuf, FILE_WRITE);
+            serializeJson(packet, dataStorage);
             dataStorage.close();
 
             rf95Loop();
