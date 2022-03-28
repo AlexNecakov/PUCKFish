@@ -18,6 +18,8 @@ public:
     float read_salinity();
 
 protected:
+    static const int volt_avg_len = 32767;
+
 private:
     uint8_t pin;
 };
