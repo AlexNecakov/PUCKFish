@@ -41,7 +41,6 @@
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 #define SPI_SPEED SD_SCK_MHZ(4)
-#define STORAGE_FILE "storage.txt"
 
 uint8_t state;
 uint8_t packetNum;
@@ -138,7 +137,6 @@ int32_t ms5Loop()
 //rfm95 radio code
 void rf95Init()
 {
-    pinMode(SD_CS, OUTPUT);
     digitalWrite(SD_CS, HIGH);
     Serial.println("RF95\tInitializing");
     while (!rf95.init())
@@ -156,31 +154,41 @@ void rf95Init()
 
 void rf95Loop()
 {
+    
+    dataStorage.rewindDirectory();
 
-    dataStorage = SD.open(STORAGE_FILE, FILE_READ);
-    StaticJsonDocument<192> doc;
-    deserializeJson(doc, dataStorage);
-    uint8_t output[sizeof(doc)];
-    serializeJson(doc, output);
-    rf95.send(output, sizeof(output));
-    rf95.waitPacketSent();
-    dataStorage.close();
+    //loop through files
+    while (dataStorage.openNextFile())
+    {
+        StaticJsonDocument<251> doc;
+        deserializeJson(doc, dataStorage);
+        uint8_t output[RH_RF95_MAX_MESSAGE_LEN];
+        serializeJson(doc, output);
+        dataStorage.close();
+        digitalWrite(SD_CS, HIGH);
+
+        if (rf95.send(output, sizeof(output)))
+        {
+            rf95.waitPacketSent();
+        }
+        else
+        {
+            Serial.println("RF95\tTransmission Failed!");
+        }
+    }
+    rf95.sleep();
 }
 
 // sd card code
 void sdInit()
 {
-    pinMode(RF95_CS, OUTPUT);
     digitalWrite(RF95_CS, HIGH);
     Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
     Serial.println("SD\tInitialization success");
 
-    Serial.println("SD\tCreating Storage File");
-    // create storage file
-    dataStorage = SD.open(STORAGE_FILE, FILE_WRITE);
-    dataStorage.close();
+    dataStorage.rewindDirectory();
 }
 
 void ms5ManTest()
@@ -202,29 +210,18 @@ void ms5ManTest()
     delay(20);
 }
 
-void sdDumpFile()
-{
-    Serial.println("DUMPING SD");
-    pinMode(RF95_CS, OUTPUT);
-    digitalWrite(RF95_CS, HIGH);
-
-    dataStorage = SD.open(STORAGE_FILE, FILE_READ);
-
-    while (dataStorage.available())
-    {
-        Serial.write(dataStorage.read());
-    }
-    dataStorage.close();
-    Serial.println("DUMP COMPLETE");
-}
-
 void setup()
 {
     Serial.begin(9600);
     Serial.println("Initializing");
     Wire.begin();
     SPI.begin();
+    pinMode(SD_CS, OUTPUT);
+    pinMode(RF95_CS, OUTPUT);
     delay(5000);
+
+    Serial.print(RH_RF95_MAX_MESSAGE_LEN);
+    Serial.println("");
 
     rf95Init();
     mpu6050Init();
@@ -249,7 +246,6 @@ void loop()
     // else if (pressure > basePressure * 1.25)
     // {
     //     // disable radio
-    //     pinMode(RF95_CS, OUTPUT);
     //     digitalWrite(RF95_CS, HIGH);
     //     state = STATE_SUBMERGE;
     // }
@@ -265,11 +261,10 @@ void loop()
         //poll oncer per hour while submerged
         if (millis() >= lastMeasure + POLLING_FREQ)
         {
+            StaticJsonDocument<251> packet;
             lastMeasure = millis();
 
-            StaticJsonDocument<256> packet;
-
-            packet["timeStamp"] = millis();
+            packet["timeStamp"] = lastMeasure;
             sensors_event_t aEvent, gEvent, tEvent;
             mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
             packet["acceleration"][0] = aEvent.acceleration.x;
@@ -286,9 +281,14 @@ void loop()
             serializeJsonPretty(packet, Serial);
 
             //write to sd
-            dataStorage = SD.open(STORAGE_FILE, FILE_WRITE);
+            String fileName = lastMeasure + ".txt";
+            char fileNameBuf[fileName.length()];
+            fileName.toCharArray(fileNameBuf, fileName.length());
+            dataStorage = SD.open(fileNameBuf, FILE_WRITE);
             serializeJsonPretty(packet, dataStorage);
             dataStorage.close();
+
+            rf95Loop();
         }
         break;
     default:

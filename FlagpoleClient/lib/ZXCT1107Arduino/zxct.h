@@ -14,15 +14,12 @@ public:
 
     bool begin();
 
-    void read_voltage();
-    void read_current();
-    uint16_t read_salinity();
+    float read_voltage();
+    float read_salinity();
 
 protected:
 private:
     uint8_t pin;
-    uint16_t voltage;
-    uint16_t current;
 };
 
 #endif
