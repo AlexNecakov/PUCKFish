@@ -128,7 +128,7 @@ bool MS5::readPROM()
 
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_PROM);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 7; i++)
     {
         I2C->requestFrom(MS5_I2CADDR, 2, false);
         calib[i] = __wire_read();
@@ -230,11 +230,9 @@ int32_t MS5::readTemperature()
     d2 |= __wire_read();
     I2C->endTransmission();
 
-    dt = d2 - calib[4] * 256;
-    temperature = 2000 + dt * calib[5] / 8388608;
-    Serial.print(d2);
-    Serial.println(" - D2");
-
+    dt = d2 - calib[5] * 256;
+    temperature = 2000 + dt * calib[6] / 8388608;
+    
     return temperature;
 }
 
@@ -266,11 +264,9 @@ int32_t MS5::readPressure()
     d1 |= __wire_read();
     I2C->endTransmission();
 
-    int64_t off = calib[1] * 65536 + ((calib[3] * dt) / 128);
-    int64_t sens = calib[0] * 32768 + ((calib[2] * dt) / 256);
+    int64_t off = calib[2] * 65536 + ((calib[4] * dt) / 128);
+    int64_t sens = calib[1] * 32768 + ((calib[3] * dt) / 256);
     pressure = (d1 * sens / 2097152 - off) / 8192;
 
-    Serial.print(d1);
-    Serial.println(" - D1");
     return pressure;
 }

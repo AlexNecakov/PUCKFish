@@ -161,12 +161,12 @@ void rf95Loop()
         if (!dataStorage)
         {
             // no more files
-            //Serial.println("**nomorefiles**");
+            Serial.println("**nomorefiles**");
             break;
         }
 
-        //Serial.print(dataStorage.name());
-        //Serial.println("");
+        Serial.print(dataStorage.name());
+        Serial.println("");
 
         StaticJsonDocument<251> doc;
         deserializeJson(doc, dataStorage);
@@ -197,6 +197,27 @@ void sdInit()
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
     Serial.println("SD\tInitialization success");
+
+    Serial.println("SD\tClearing storage");
+    File root = SD.open("/");
+    root.rewindDirectory();
+
+    //loop through files to delete
+    while (true)
+    {
+        File dataStorage = root.openNextFile();
+        if (!dataStorage)
+        {
+            // no more files
+            //Serial.println("**nomorefiles**");
+            break;
+        }
+
+        SD.remove(dataStorage.name());
+        dataStorage.close();
+    }
+    root.close();
+    Serial.println("SD\tStorage cleared");
 }
 
 void ms5ManTest()
@@ -293,7 +314,7 @@ void loop()
             serializeJson(packet, dataStorage);
             dataStorage.close();
 
-            //rf95Loop();
+            rf95Loop();
         }
         break;
     default:
