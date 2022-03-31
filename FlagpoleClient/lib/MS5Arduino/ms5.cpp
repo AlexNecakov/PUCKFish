@@ -134,10 +134,10 @@ bool MS5::readPROM()
         calib[i] = __wire_read();
         calib[i] <<= 8;
         calib[i] |= __wire_read();
-        Serial.print(calib[i]);
-        Serial.print(" calib ");
-        Serial.print(i);
-        Serial.println("");
+        // Serial.print(calib[i]);
+        // Serial.print(" calib ");
+        // Serial.print(i);
+        // Serial.println("");
     }
     ack = I2C->endTransmission();
 

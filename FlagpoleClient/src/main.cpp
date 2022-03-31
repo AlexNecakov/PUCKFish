@@ -55,19 +55,19 @@ MS5 ms5(MS5_I2C_ADDRESS);
 //mpu6050 accel/gyro/temp sensor code
 void mpu6050Init()
 {
-    Serial.println("MPU6050\tInitializing");
+    //Serial.println("MPU6050\tInitializing");
     while (!mpu6050.begin())
         Serial.println("MPU6050\tInit failed");
-    Serial.println("MPU6050\tInit success");
+    //Serial.println("MPU6050\tInit success");
 }
 
 //bh1750 light sensor code
 void bh1750Init()
 {
-    Serial.println("BH1750\tInitializing");
+    //Serial.println("BH1750\tInitializing");
     while (!bh1750.begin(BH1750::BH1750_MODE))
         Serial.println("BH1750\tInit failed");
-    Serial.println("BH1750\tInit success");
+    //Serial.println("BH1750\tInit success");
 }
 
 float bh1750Loop()
@@ -82,29 +82,31 @@ float bh1750Loop()
 //zxct1107 salinity sensor code
 void zxct1107Init()
 {
-    Serial.println("ZXCT1107\tInitializing");
+    //Serial.println("ZXCT1107\tInitializing");
     while (!zxct1107.begin())
         Serial.println("ZXCT1107\tInit failed");
-    Serial.println("ZXCT1107\tInit success");
+    //Serial.println("ZXCT1107\tInit success");
 }
 
 float zxct1107Loop()
 {
     float salinity = zxct1107.read_salinity();
+    
     return salinity;
 }
 
 //gravity dissolved oxygen sensor code
 void gravitydoInit()
 {
-    Serial.println("GRAVITYDO\tInitializing");
+    //Serial.println("GRAVITYDO\tInitializing");
     while (!gravitydo.begin())
         Serial.println("GRAVITYDO\tInit failed");
-    Serial.println("GRAVITYDO\tInit success");
+    //Serial.println("GRAVITYDO\tInit success");
 
-    Serial.print("GRAVITYDO\tFull saturation voltage calibrated to: ");
-    Serial.print(gravitydo.cal());
-    Serial.println("");
+    //Serial.print("GRAVITYDO\tFull saturation voltage calibrated to: ");
+    //Serial.print(gravitydo.cal());
+    //Serial.println("");
+    gravitydo.cal();
 }
 
 float gravitydoLoop()
@@ -116,12 +118,12 @@ float gravitydoLoop()
 //pressure sensor code
 void ms5Init()
 {
-    Serial.println("MS5\tInitializing");
+    //Serial.println("MS5\tInitializing");
     while (!ms5.begin())
         Serial.println("MS5\tInit failed");
     basePressure = ms5.readPressure();
 
-    Serial.println("MS5\tInit success");
+    //Serial.println("MS5\tInit success");
 }
 
 int32_t ms5Loop()
@@ -135,16 +137,16 @@ int32_t ms5Loop()
 void rf95Init()
 {
     digitalWrite(SD_CS, HIGH);
-    Serial.println("RF95\tInitializing");
+    //Serial.println("RF95\tInitializing");
     while (!rf95.init())
         Serial.println("RF95\tInit failed");
-    Serial.println("RF95\tInit success");
+    //Serial.println("RF95\tInit success");
 
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     while (!rf95.setFrequency(RF95_FREQ))
         Serial.println("RF95\tSet frequency failed");
-    Serial.print("RF95\tSet frequency to: ");
-    Serial.println(RF95_FREQ);
+    //Serial.print("RF95\tSet frequency to: ");
+    //Serial.println(RF95_FREQ);
 
     rf95.setTxPower(23, false);
 }
@@ -161,12 +163,12 @@ void rf95Loop()
         if (!dataStorage)
         {
             // no more files
-            Serial.println("**nomorefiles**");
+            //Serial.println("**nomorefiles**");
             break;
         }
 
-        Serial.print(dataStorage.name());
-        Serial.println("");
+        //Serial.print(dataStorage.name());
+        //Serial.println("");
 
         StaticJsonDocument<251> doc;
         deserializeJson(doc, dataStorage);
@@ -182,7 +184,7 @@ void rf95Loop()
         }
         else
         {
-            Serial.println("RF95\tTransmission Failed!");
+            //Serial.println("RF95\tTransmission Failed!");
         }
     }
     rf95.sleep();
@@ -193,12 +195,12 @@ void rf95Loop()
 void sdInit()
 {
     digitalWrite(RF95_CS, HIGH);
-    Serial.println("SD\tInitializing");
+    //Serial.println("SD\tInitializing");
     while (!SD.begin(SD_CS))
         Serial.println("SD\tInitialization failed!");
-    Serial.println("SD\tInitialization success");
+    //Serial.println("SD\tInitialization success");
 
-    Serial.println("SD\tClearing storage");
+    //Serial.println("SD\tClearing storage");
     File root = SD.open("/");
     root.rewindDirectory();
 
@@ -217,7 +219,7 @@ void sdInit()
         dataStorage.close();
     }
     root.close();
-    Serial.println("SD\tStorage cleared");
+    //Serial.println("SD\tStorage cleared");
 }
 
 void ms5ManTest()
@@ -242,12 +244,12 @@ void ms5ManTest()
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("Initializing");
+    //Serial.println("Initializing");
     Wire.begin();
     SPI.begin();
     pinMode(SD_CS, OUTPUT);
     pinMode(RF95_CS, OUTPUT);
-    delay(5000);
+    //delay(5000);
 
     rf95Init();
     mpu6050Init();
@@ -256,7 +258,7 @@ void setup()
     zxct1107Init();
     gravitydoInit();
     sdInit();
-    Serial.println("Initialization Complete");
+    //Serial.println("Initialization Complete");
     lastMeasure = millis();
 }
 
