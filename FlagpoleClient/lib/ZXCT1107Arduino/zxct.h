@@ -14,15 +14,14 @@ public:
 
     bool begin();
 
-    void read_voltage();
-    void read_current();
-    uint8_t read_salinity();
+    float read_voltage();
+    float read_salinity();
 
 protected:
+    static const int volt_avg_len = 32767;
+
 private:
     uint8_t pin;
-    uint8_t voltage;
-    uint8_t current;
 };
 
 #endif

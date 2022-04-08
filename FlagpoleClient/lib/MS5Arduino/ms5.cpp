@@ -15,7 +15,7 @@
 #include <pgmspace.h>
 #define _delay_ms(ms) delayMicroseconds((ms)*1000)
 
-// Use _delay_ms from utils for AVR-based platforms
+// Use __delay_ms_ms from utils for AVR-based platforms
 #elif defined(__avr__)
 #include <util/delay.h>
 
@@ -44,7 +44,6 @@
  */
 MS5::MS5(byte addr)
 {
-
     MS5_I2CADDR = addr;
     // Allows user to change TwoWire instance
     I2C = &Wire;
@@ -58,7 +57,6 @@ MS5::MS5(byte addr)
  */
 bool MS5::begin(byte addr, TwoWire *i2c)
 {
-
     // I2C is expected to be initialized outside this library
     // But, allows a different address and TwoWire instance to be used
     if (i2c)
@@ -80,7 +78,6 @@ bool MS5::begin(byte addr, TwoWire *i2c)
  */
 bool MS5::reset()
 {
-
     // default transmission result to a value out of normal range
     byte ack = 5;
 
@@ -90,13 +87,25 @@ bool MS5::reset()
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
     {
     case 0:
         return true;
+    case 1: // too long for transmit buffer
+        Serial.println(F("[MS5] ERROR: too long for transmit buffer"));
+        break;
+    case 2: // received NACK on transmit of address
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of address"));
+        break;
+    case 3: // received NACK on transmit of data
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of data"));
+        break;
+    case 4: // other error
+        Serial.println(F("[MS5] ERROR: other error"));
+        break;
     default:
         Serial.println(F("[MS5] ERROR: reset error"));
         break;
@@ -115,28 +124,43 @@ bool MS5::reset()
  */
 bool MS5::readPROM()
 {
-
     byte ack = 5;
 
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_PROM);
-    I2C->requestFrom(MS5_I2CADDR, 12);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 7; i++)
     {
+        I2C->requestFrom(MS5_I2CADDR, 2, false);
         calib[i] = __wire_read();
         calib[i] <<= 8;
         calib[i] |= __wire_read();
+        // Serial.print(calib[i]);
+        // Serial.print(" calib ");
+        // Serial.print(i);
+        // Serial.println("");
     }
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
     {
     case 0:
         return true;
+    case 1: // too long for transmit buffer
+        Serial.println(F("[MS5] ERROR: too long for transmit buffer"));
+        break;
+    case 2: // received NACK on transmit of address
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of address"));
+        break;
+    case 3: // received NACK on transmit of data
+        Serial.println(F("[MS5] ERROR: received NACK on transmit of data"));
+        break;
+    case 4: // other error
+        Serial.println(F("[MS5] ERROR: other error"));
+        break;
     default:
         Serial.println(F("[MS5] Read PROM error"));
         break;
@@ -166,7 +190,7 @@ bool MS5::conversion(bool mode)
     ack = I2C->endTransmission();
 
     // Wait a few moments to wake up
-    _delay_ms(10);
+    _delay_ms(200);
 
     // Check result code
     switch (ack)
@@ -188,9 +212,8 @@ bool MS5::conversion(bool mode)
  */
 int32_t MS5::readTemperature()
 {
-    readTemperature();
     // Measurement result will be stored here
-    int32_t temperature = -1.0;
+    int32_t temperature = 0;
 
     // d1 conversion sequence
     conversion(D2_CONV_MODE);
@@ -198,7 +221,7 @@ int32_t MS5::readTemperature()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom(MS5_I2CADDR, 3);
+    I2C->requestFrom(MS5_I2CADDR, 3, false);
     int32_t d2 = 0;
     d2 = __wire_read();
     d2 <<= 8;
@@ -207,9 +230,9 @@ int32_t MS5::readTemperature()
     d2 |= __wire_read();
     I2C->endTransmission();
 
-    dt = d2 - calib[4] * 256;
-    temperature = 2000 + dt * calib[5] / 8388608;
-
+    dt = d2 - calib[5] * 256;
+    temperature = 2000 + dt * calib[6] / 8388608;
+    
     return temperature;
 }
 
@@ -224,7 +247,7 @@ int32_t MS5::readPressure()
     readTemperature();
 
     // Measurement result will be stored here
-    int32_t pressure = -1.0;
+    int32_t pressure = 0;
 
     // d1 conversion sequence
     conversion(D1_CONV_MODE);
@@ -232,7 +255,7 @@ int32_t MS5::readPressure()
     // Read three bytes from the sensor
     I2C->beginTransmission(MS5_I2CADDR);
     __wire_write(MS5_READ_ADC);
-    I2C->requestFrom(MS5_I2CADDR, 3);
+    I2C->requestFrom(MS5_I2CADDR, 3, false);
     int32_t d1 = 0;
     d1 = __wire_read();
     d1 <<= 8;
@@ -241,8 +264,8 @@ int32_t MS5::readPressure()
     d1 |= __wire_read();
     I2C->endTransmission();
 
-    int64_t off = calib[1] * 65536 + ((calib[3] * dt) / 128);
-    int64_t sens = calib[0] * 32768 + ((calib[2] * dt) / 256);
+    int64_t off = calib[2] * 65536 + ((calib[4] * dt) / 128);
+    int64_t sens = calib[1] * 32768 + ((calib[3] * dt) / 256);
     pressure = (d1 * sens / 2097152 - off) / 8192;
 
     return pressure;

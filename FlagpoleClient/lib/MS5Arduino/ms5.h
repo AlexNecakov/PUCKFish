@@ -25,7 +25,7 @@
 
 // I2C Command Bytes
 #define MS5_RESET 0x1E
-#define MS5_READ_PROM 0xA2
+#define MS5_READ_PROM 0xA0
 #define MS5_D1_CONV_SEQ 0x48
 #define MS5_D2_CONV_SEQ 0x58
 #define MS5_READ_ADC 0x00
@@ -48,7 +48,7 @@ public:
 private:
     TwoWire *I2C;
     byte MS5_I2CADDR;
-    uint16_t calib[6];
+    uint16_t calib[7];
     int32_t dt;
 
     bool readPROM();
