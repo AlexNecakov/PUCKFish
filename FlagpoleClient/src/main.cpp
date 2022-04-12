@@ -252,9 +252,9 @@ void setup()
     delay(5000);
 
     rf95Init();
-    //mpu6050Init();
-    //ms5Init();
-    //bh1750Init();
+    mpu6050Init();
+    ms5Init();
+    bh1750Init();
     zxct1107Init();
     gravitydoInit();
     sdInit();
