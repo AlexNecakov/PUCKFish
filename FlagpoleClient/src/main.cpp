@@ -106,7 +106,6 @@ void gravitydoInit()
     Serial.print("GRAVITYDO\tFull saturation voltage calibrated to: ");
     Serial.print(gravitydo.cal());
     Serial.println("");
-    gravitydo.cal();
 }
 
 float gravitydoLoop()
@@ -305,7 +304,7 @@ void loop()
             packet["ambientLight"] = bh1750Loop();
             packet["salinity"] = zxct1107Loop();
             packet["dissolvedOxygen"] = gravitydoLoop();
-            packet["pressure"] = ms5Loop();
+            // packet["pressure"] = ms5Loop();
             serializeJsonPretty(packet, Serial);
 
             //write to sd
