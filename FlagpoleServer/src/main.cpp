@@ -47,7 +47,7 @@ void rf95Loop()
             StaticJsonDocument<251> packet;
             Serial.println("RF95\tReceive success");
             deserializeJson(packet, buf);
-            serializeJsonPretty(packet, Serial);
+            serializeJson(packet, Serial);
             Serial.println("");
         }
         else

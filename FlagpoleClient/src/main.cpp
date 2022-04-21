@@ -34,7 +34,10 @@
 #define MILLIS_30_SEC 30000
 #define MILLIS_10_SEC 10000
 #define MILLIS_SEC 1000
-#define POLLING_FREQ MILLIS_30_SEC
+#define POLLING_FREQ MILLIS_10_SEC
+
+#define ARDUINOJSON_USE_DOUBLE 0
+#define ARDUINOJSON_USE_LONG_LONG 0
 
 #define RF95_FREQ 915.0
 #define MS5_I2C_ADDRESS 0x76
@@ -42,7 +45,7 @@
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 
 uint8_t state;
-int32_t basePressure;
+float basePressure;
 unsigned long lastMeasure;
 
 RH_RF95 rf95(RF95_CS, RF95_INT);
@@ -121,7 +124,7 @@ void ms5Init()
     Serial.println("MS5\tInitializing");
     while (!ms5.begin())
         Serial.println("MS5\tInit failed");
-    
+
     ms5.setModel(MS5837::MS5837_30BA);
 
     ms5.setFluidDensity(1029); // kg/m^3 (freshwater, 1029 for seawater)
@@ -135,9 +138,9 @@ void ms5Init()
 float ms5Loop()
 {
     ms5.read();
-    float pressure = ms5.pressure();
+    float depth = ms5.depth();
 
-    return pressure;
+    return depth;
 }
 
 //rfm95 radio code
@@ -179,8 +182,12 @@ void rf95Loop()
 
         StaticJsonDocument<251> doc;
         deserializeJson(doc, dataStorage);
+
+        // serializeJson(doc, Serial);
         uint8_t output[RH_RF95_MAX_MESSAGE_LEN];
         serializeJson(doc, output);
+        // Serial.print(output);
+        // Serial.println("");
         dataStorage.close();
 
         digitalWrite(SD_CS, HIGH);
@@ -191,7 +198,7 @@ void rf95Loop()
         }
         else
         {
-            Serial.println("RF95\tTransmission Failed!");
+            // Serial.println("RF95\tTransmission Failed!");
         }
     }
     rf95.sleep();
@@ -252,12 +259,12 @@ void setup()
 
 void loop()
 {
-    // //need to poll pressure for state change
-    // int32_t pressure = ms5.readPressure();
+    //need to poll pressure for state change
+    // ms5.read();
+    // float pressure = ms5.pressure();
     // if (pressure <= basePressure * 1.25)
     // {
-    //     state = STATE_SUBMERGE;
-    //     //state = STATE_SURFACE;
+    //     state = STATE_SURFACE;
     // }
     // else if (pressure > basePressure * 1.25)
     // {
@@ -267,6 +274,7 @@ void loop()
     // }
 
     state = STATE_SUBMERGE;
+
     switch (state)
     {
     case STATE_SURFACE: //when surfaced transmit every 10 seconds
@@ -280,21 +288,21 @@ void loop()
             StaticJsonDocument<251> packet;
             lastMeasure = millis();
 
-            packet["timeStamp"] = lastMeasure;
+            packet["#"] = lastMeasure;
             sensors_event_t aEvent, gEvent, tEvent;
             mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-            packet["acceleration"][0] = aEvent.acceleration.x;
-            packet["acceleration"][1] = aEvent.acceleration.y;
-            packet["acceleration"][2] = aEvent.acceleration.z;
-            packet["orientation"][0] = gEvent.orientation.x;
-            packet["orientation"][1] = gEvent.orientation.y;
-            packet["orientation"][2] = gEvent.orientation.z;
-            packet["temperature"] = tEvent.temperature;
-            packet["ambientLight"] = bh1750Loop();
-            packet["salinity"] = zxct1107Loop();
-            packet["dissolvedOxygen"] = gravitydoLoop();
-            packet["pressure"] = ms5Loop();
-            serializeJsonPretty(packet, Serial);
+            packet["a"][0] = aEvent.acceleration.x;
+            packet["a"][1] = aEvent.acceleration.y;
+            packet["a"][2] = aEvent.acceleration.z;
+            packet["o"][0] = gEvent.orientation.x;
+            packet["o"][1] = gEvent.orientation.y;
+            packet["o"][2] = gEvent.orientation.z;
+            packet["t"] = tEvent.temperature;
+            packet["l"] = bh1750Loop();
+            packet["s"] = zxct1107Loop();
+            packet["d"] = gravitydoLoop();
+            packet["p"] = ms5Loop();
+            // serializeJsonPretty(packet, Serial);
 
             //write to sd
             String fileName = String(lastMeasure) + ".txt";
