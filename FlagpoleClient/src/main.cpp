@@ -12,7 +12,7 @@
 #include <BH1750.h>
 #include <zxct.h>
 #include <do_grav.h>
-#include <ms5.h>
+#include <MS5837.h>
 
 // State Defines
 #define STATE_SURFACE 0
@@ -34,7 +34,7 @@
 #define MILLIS_30_SEC 30000
 #define MILLIS_10_SEC 10000
 #define MILLIS_SEC 1000
-#define POLLING_FREQ MILLIS_SEC
+#define POLLING_FREQ MILLIS_30_SEC
 
 #define RF95_FREQ 915.0
 #define MS5_I2C_ADDRESS 0x76
@@ -50,7 +50,7 @@ Adafruit_MPU6050 mpu6050;
 BH1750 bh1750(BH1750_I2C_ADDRESS);
 ZXCT1107 zxct1107 = ZXCT1107(ZXCT1107_PIN);
 Gravity_DO gravitydo = Gravity_DO(GRAVITYDO_PIN);
-MS5 ms5(MS5_I2C_ADDRESS);
+MS5837 ms5;
 
 //mpu6050 accel/gyro/temp sensor code
 void mpu6050Init()
@@ -68,6 +68,7 @@ void bh1750Init()
     while (!bh1750.begin(BH1750::BH1750_MODE))
         Serial.println("BH1750\tInit failed");
     Serial.println("BH1750\tInit success");
+    bh1750.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
 }
 
 float bh1750Loop()
@@ -91,7 +92,7 @@ void zxct1107Init()
 float zxct1107Loop()
 {
     float salinity = zxct1107.read_salinity();
-    
+
     return salinity;
 }
 
@@ -120,14 +121,21 @@ void ms5Init()
     Serial.println("MS5\tInitializing");
     while (!ms5.begin())
         Serial.println("MS5\tInit failed");
-    basePressure = ms5.readPressure();
+    
+    ms5.setModel(MS5837::MS5837_30BA);
+
+    ms5.setFluidDensity(1029); // kg/m^3 (freshwater, 1029 for seawater)
+
+    ms5.read();
+    basePressure = ms5.pressure();
 
     Serial.println("MS5\tInit success");
 }
 
-int32_t ms5Loop()
+float ms5Loop()
 {
-    int32_t pressure = ms5.readPressure();
+    ms5.read();
+    float pressure = ms5.pressure();
 
     return pressure;
 }
@@ -221,25 +229,6 @@ void sdInit()
     //Serial.println("SD\tStorage cleared");
 }
 
-void ms5ManTest()
-{
-    Wire.begin(0x76);
-    Wire.write(0x1E);
-    delay(100);
-    Wire.write(0xA2);
-    Serial.print(Wire.requestFrom(0x76, 1));
-    Serial.println("");
-    Serial.print(Wire.available());
-    Serial.println("");
-    int calib = Wire.read();
-    // calib <<= 8;
-    // calib |= Wire.read();
-    Serial.print(calib);
-    Serial.print(" calib ");
-    Serial.println("");
-    delay(20);
-}
-
 void setup()
 {
     Serial.begin(9600);
@@ -251,11 +240,11 @@ void setup()
     delay(5000);
 
     rf95Init();
-    // mpu6050Init();
+    mpu6050Init();
     ms5Init();
-    // bh1750Init();
-    // zxct1107Init();
-    // gravitydoInit();
+    bh1750Init();
+    zxct1107Init();
+    gravitydoInit();
     sdInit();
     Serial.println("Initialization Complete");
     lastMeasure = millis();
@@ -293,17 +282,17 @@ void loop()
 
             packet["timeStamp"] = lastMeasure;
             sensors_event_t aEvent, gEvent, tEvent;
-            // mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-            // packet["acceleration"][0] = aEvent.acceleration.x;
-            // packet["acceleration"][1] = aEvent.acceleration.y;
-            // packet["acceleration"][2] = aEvent.acceleration.z;
-            // packet["orientation"][0] = gEvent.orientation.x;
-            // packet["orientation"][1] = gEvent.orientation.y;
-            // packet["orientation"][2] = gEvent.orientation.z;
-            // packet["temperature"] = tEvent.temperature;
-            // packet["ambientLight"] = bh1750Loop();
-            // packet["salinity"] = zxct1107Loop();
-            // packet["dissolvedOxygen"] = gravitydoLoop();
+            mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
+            packet["acceleration"][0] = aEvent.acceleration.x;
+            packet["acceleration"][1] = aEvent.acceleration.y;
+            packet["acceleration"][2] = aEvent.acceleration.z;
+            packet["orientation"][0] = gEvent.orientation.x;
+            packet["orientation"][1] = gEvent.orientation.y;
+            packet["orientation"][2] = gEvent.orientation.z;
+            packet["temperature"] = tEvent.temperature;
+            packet["ambientLight"] = bh1750Loop();
+            packet["salinity"] = zxct1107Loop();
+            packet["dissolvedOxygen"] = gravitydoLoop();
             packet["pressure"] = ms5Loop();
             serializeJsonPretty(packet, Serial);
 
