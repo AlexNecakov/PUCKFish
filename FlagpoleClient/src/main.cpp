@@ -34,7 +34,7 @@
 #define MILLIS_30_SEC 30000
 #define MILLIS_10_SEC 10000
 #define MILLIS_SEC 1000
-#define POLLING_FREQ MILLIS_10_SEC
+#define POLLING_FREQ MILLIS_SEC
 
 #define RF95_FREQ 915.0
 #define MS5_I2C_ADDRESS 0x76
@@ -251,11 +251,11 @@ void setup()
     delay(5000);
 
     rf95Init();
-    mpu6050Init();
+    // mpu6050Init();
     ms5Init();
-    bh1750Init();
-    zxct1107Init();
-    gravitydoInit();
+    // bh1750Init();
+    // zxct1107Init();
+    // gravitydoInit();
     sdInit();
     Serial.println("Initialization Complete");
     lastMeasure = millis();
@@ -293,18 +293,18 @@ void loop()
 
             packet["timeStamp"] = lastMeasure;
             sensors_event_t aEvent, gEvent, tEvent;
-            mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
-            packet["acceleration"][0] = aEvent.acceleration.x;
-            packet["acceleration"][1] = aEvent.acceleration.y;
-            packet["acceleration"][2] = aEvent.acceleration.z;
-            packet["orientation"][0] = gEvent.orientation.x;
-            packet["orientation"][1] = gEvent.orientation.y;
-            packet["orientation"][2] = gEvent.orientation.z;
-            packet["temperature"] = tEvent.temperature;
-            packet["ambientLight"] = bh1750Loop();
-            packet["salinity"] = zxct1107Loop();
-            packet["dissolvedOxygen"] = gravitydoLoop();
-            // packet["pressure"] = ms5Loop();
+            // mpu6050.getEvent(&aEvent, &gEvent, &tEvent);
+            // packet["acceleration"][0] = aEvent.acceleration.x;
+            // packet["acceleration"][1] = aEvent.acceleration.y;
+            // packet["acceleration"][2] = aEvent.acceleration.z;
+            // packet["orientation"][0] = gEvent.orientation.x;
+            // packet["orientation"][1] = gEvent.orientation.y;
+            // packet["orientation"][2] = gEvent.orientation.z;
+            // packet["temperature"] = tEvent.temperature;
+            // packet["ambientLight"] = bh1750Loop();
+            // packet["salinity"] = zxct1107Loop();
+            // packet["dissolvedOxygen"] = gravitydoLoop();
+            packet["pressure"] = ms5Loop();
             serializeJsonPretty(packet, Serial);
 
             //write to sd
