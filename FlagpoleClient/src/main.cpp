@@ -44,8 +44,9 @@
 #define BH1750_I2C_ADDRESS 0x23
 #define BH1750_MODE ONE_TIME_HIGH_RES_MODE
 
+#define SEA_LEVEL_MBAR 1013.25
+
 uint8_t state;
-float basePressure;
 unsigned long lastMeasure;
 
 RH_RF95 rf95(RF95_CS, RF95_INT);
@@ -129,9 +130,6 @@ void ms5Init()
 
     ms5.setFluidDensity(1029); // kg/m^3 (freshwater, 1029 for seawater)
 
-    ms5.read();
-    basePressure = ms5.pressure();
-
     Serial.println("MS5\tInit success");
 }
 
@@ -195,6 +193,9 @@ void rf95Loop()
         if (rf95.send(output, sizeof(output)))
         {
             rf95.waitPacketSent();
+            Serial.print("Sent ");
+            Serial.print(sizeof(output));
+            Serial.println(" bytes");
         }
         else
         {
@@ -260,20 +261,20 @@ void setup()
 void loop()
 {
     //need to poll pressure for state change
-    // ms5.read();
-    // float pressure = ms5.pressure();
-    // if (pressure <= basePressure * 1.25)
-    // {
-    //     state = STATE_SURFACE;
-    // }
-    // else if (pressure > basePressure * 1.25)
-    // {
-    //     // disable radio
-    //     digitalWrite(RF95_CS, HIGH);
-    //     state = STATE_SUBMERGE;
-    // }
+    ms5.read();
+    float pressure = ms5.pressure();
+    if (pressure <= SEA_LEVEL_MBAR * 1.01)
+    {
+        state = STATE_SURFACE;
+    }
+    else if (pressure > SEA_LEVEL_MBAR * 1.01)
+    {
+        // disable radio
+        digitalWrite(RF95_CS, HIGH);
+        state = STATE_SUBMERGE;
+    }
 
-    state = STATE_SUBMERGE;
+    // state = STATE_SUBMERGE;
 
     switch (state)
     {
@@ -312,7 +313,7 @@ void loop()
             serializeJson(packet, dataStorage);
             dataStorage.close();
 
-            rf95Loop();
+            // rf95Loop();
         }
         break;
     default:
