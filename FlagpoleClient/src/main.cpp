@@ -263,18 +263,18 @@ void loop()
     //need to poll pressure for state change
     ms5.read();
     float pressure = ms5.pressure();
-    if (pressure <= SEA_LEVEL_MBAR * 1.01)
+    if (pressure <= SEA_LEVEL_MBAR * 1.1)
     {
         state = STATE_SURFACE;
     }
-    else if (pressure > SEA_LEVEL_MBAR * 1.01)
+    else if (pressure > SEA_LEVEL_MBAR * 1.1)
     {
         // disable radio
         digitalWrite(RF95_CS, HIGH);
         state = STATE_SUBMERGE;
     }
 
-    // state = STATE_SUBMERGE;
+    //state = STATE_SUBMERGE;
 
     switch (state)
     {
@@ -303,7 +303,7 @@ void loop()
             packet["s"] = zxct1107Loop();
             packet["d"] = gravitydoLoop();
             packet["p"] = ms5Loop();
-            // serializeJsonPretty(packet, Serial);
+            //serializeJsonPretty(packet, Serial);
 
             //write to sd
             String fileName = String(lastMeasure) + ".txt";
@@ -313,7 +313,7 @@ void loop()
             serializeJson(packet, dataStorage);
             dataStorage.close();
 
-            // rf95Loop();
+            //rf95Loop();
         }
         break;
     default:
