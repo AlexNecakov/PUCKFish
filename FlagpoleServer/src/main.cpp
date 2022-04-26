@@ -44,10 +44,10 @@ void rf95Loop()
 
         if (rf95.recv(buf, &len))
         {
-            DynamicJsonDocument  packet(len);
+            StaticJsonDocument<251> packet;
             Serial.println("RF95\tReceive success");
             deserializeJson(packet, buf);
-            serializeJsonPretty(packet, Serial);
+            serializeJson(packet, Serial);
             Serial.println("");
         }
         else

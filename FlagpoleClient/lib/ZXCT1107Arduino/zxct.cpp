@@ -1,5 +1,3 @@
-#include "Arduino.h"
-#include <cmath>
 #include "zxct.h"
 
 ZXCT1107::ZXCT1107(uint8_t pin)
@@ -14,17 +12,22 @@ bool ZXCT1107::begin()
 
 float ZXCT1107::read_voltage()
 {
-    voltage_mV += analogRead(this->pin);
-
-    
+    float voltage_mV = 0;
+    for (int i = 0; i < volt_avg_len; ++i)
+    {
+        voltage_mV += analogRead(this->pin) / 1024.0 * 3300.0;
+    }
+    voltage_mV /= volt_avg_len;
     return voltage_mV;
 }
 
-float ZXCT1107::read_salinity() {
-    float salinity = 0;
-    // float conductivity = read_current/voltage_mV;
+float ZXCT1107::read_salinity()
+{
+    float voltageOut = read_voltage();
+    float voltageSense = 3300.0 - voltageOut;
+    float currentOut = 0.004 * voltageSense;
 
-    // salinity = (pow(conductivity, 1.0878)) * 0.4665;
+    float conductivity = currentOut / voltageOut;
+    float salinity = conductivity * 0.64;
     return salinity;
-
 }

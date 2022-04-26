@@ -50,7 +50,7 @@ class Gravity_DO : public Gravity_Base{
         float cal_clear();
         
     protected:
-		static const int volt_avg_len = 1000;
+		static const int volt_avg_len = 32767;
 	private:
 		
         const float DEFAULT_SAT_VOLTAGE = DEFAULT_SAT_VOLTAGE_CONST;
