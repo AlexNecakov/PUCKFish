@@ -260,14 +260,18 @@ void setup()
 
 void loop()
 {
-    //need to poll pressure for state change
+    //need to poll pressure for state 
+    //Serial.println("Reading begin");
     ms5.read();
+    //Serial.println("Reading end");
     float pressure = ms5.pressure();
-    if (pressure <= SEA_LEVEL_MBAR * 1.1)
+    //Serial.print(pressure);
+    //Serial.println("");
+    if (pressure <= SEA_LEVEL_MBAR * 1.01)
     {
         state = STATE_SURFACE;
     }
-    else if (pressure > SEA_LEVEL_MBAR * 1.1)
+    else if (pressure > SEA_LEVEL_MBAR * 1.01)
     {
         // disable radio
         digitalWrite(RF95_CS, HIGH);
@@ -275,6 +279,8 @@ void loop()
     }
 
     //state = STATE_SUBMERGE;
+    //Serial.print(state);
+    //Serial.println("");
 
     switch (state)
     {
