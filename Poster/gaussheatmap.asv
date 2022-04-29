@@ -1,0 +1,46 @@
+% Peter Ha
+% Random heatmap generator with n hot and cold spots for visualization
+
+clear
+close all
+
+N = 10; % number of iterations
+n = 5; % number of hotspots/traps
+% no it isn't confusing actually 
+
+layer = 256;
+layers = zeros(layer);
+
+canvas = 1024;
+canvass = 0.5*ones(canvas, canvas, N);
+
+spots = rand([2*n,2]); %[hotspot x, hotspot y; coldspot x coldspot y; ...]
+hotspots = spots(1:2:end,:);
+
+randspots = round(1024*rand(
+
+hauls = zeros(N, 2);
+
+for j = 1:N
+    for i = 1:n
+        canvass(:,:,j) = canvass(:,:,j)+0.5*gauss2d(canvass(:,:,j), 500*rand(1), 1024*spots(2*i-1,:));
+        canvass(:,:,j) = canvass(:,:,j)-0.5*gauss2d(canvass(:,:,j), 500*rand(1), 1024*spots(2*i,:));
+    end
+    
+end
+    
+heatmap(canvass(:,:,j))
+grid off
+
+function mat = gauss2d(mat, sigma, center)
+    gsize = size(mat);
+    [R,C] = ndgrid(1:gsize(1), 1:gsize(2));
+    mat = gaussC(R,C, sigma, center);
+end
+
+function val = gaussC(x, y, sigma, center)
+    xc = center(1);
+    yc = center(2);
+    exponent = ((x-xc).^2 + (y-yc).^2)./(2*sigma^2);
+    val       = (exp(-exponent));
+end
