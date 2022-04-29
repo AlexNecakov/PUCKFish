@@ -4,7 +4,7 @@
 clear
 close all
 
-N = 1000; % number of iterations
+N = 10; % number of iterations
 n = 5; % number of hotspots/traps
 % no it isn't confusing actually 
 
@@ -33,7 +33,11 @@ for j = 1:N
 end
 
 nethauls = [sum(hauls(:,1)), sum(hauls(:,2))];
-ratio = nethauls(2)/nethauls(1)
+ratio = nethauls(2)/nethauls(1);
+
+% https://www.mathworks.com/help/optim/ug/travelling-salesman-problem.html
+alltrips = nchoosek(1:n,2);
+dist(:) = hypot(
     
 heatmap(canvass(:,:,j))
 grid off
