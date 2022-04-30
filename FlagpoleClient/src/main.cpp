@@ -321,6 +321,7 @@ void loop()
 
             //rf95Loop();
         }
+        delay(MILLIS_10_SEC);
         break;
     default:
         rf95Loop();
