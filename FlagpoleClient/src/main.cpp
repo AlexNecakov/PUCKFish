@@ -260,25 +260,25 @@ void setup()
 
 void loop()
 {
-    //need to poll pressure for state 
-    //Serial.println("Reading begin");
-    ms5.read();
-    //Serial.println("Reading end");
-    float pressure = ms5.pressure();
-    //Serial.print(pressure);
-    //Serial.println("");
-    if (pressure <= SEA_LEVEL_MBAR * 1.01)
-    {
-        state = STATE_SURFACE;
-    }
-    else if (pressure > SEA_LEVEL_MBAR * 1.01)
-    {
-        // disable radio
-        digitalWrite(RF95_CS, HIGH);
-        state = STATE_SUBMERGE;
-    }
+    // //need to poll pressure for state 
+    // //Serial.println("Reading begin");
+    // ms5.read();
+    // //Serial.println("Reading end");
+    // float pressure = ms5.pressure();
+    // //Serial.print(pressure);
+    // //Serial.println("");
+    // if (pressure <= SEA_LEVEL_MBAR * 1.01)
+    // {
+    //     state = STATE_SURFACE;
+    // }
+    // else if (pressure > SEA_LEVEL_MBAR * 1.01)
+    // {
+    //     // disable radio
+    //     digitalWrite(RF95_CS, HIGH);
+    //     state = STATE_SUBMERGE;
+    // }
 
-    //state = STATE_SUBMERGE;
+    state = STATE_SUBMERGE;
     //Serial.print(state);
     //Serial.println("");
 
@@ -319,7 +319,7 @@ void loop()
             serializeJson(packet, dataStorage);
             dataStorage.close();
 
-            //rf95Loop();
+            rf95Loop();
         }
         delay(MILLIS_10_SEC);
         break;
