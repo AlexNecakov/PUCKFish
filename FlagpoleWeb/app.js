@@ -10,6 +10,15 @@ var current_speed = 0;
 var current_Error = 0;
 var current_Front = 0;
 
+var timeStamp = 0;
+var acceleration = [0, 0, 0];
+var orientation = [0, 0, 0];
+var temperature = 0;
+var ambientLight = 0;
+var salinity = 0;
+var dissolvedOxygen = 0; 
+var depth = 0;
+
 const port = new SerialPort({
     path: 'COM10',
     baudRate: 9600
@@ -49,28 +58,15 @@ app.get("/data", async (req, res) => {
 // port.on('data', function (data) {
 //     console.log('Data:', data)
 // })
-parser.on('data', console.log)
-
-// server.on('message', function (msg, info) {
-//     console.log(typeof (msg), msg.length)
-//     var msgString = msg.toString();
-//     console.log(msg[0], msg[2], msg[4]);
-//     current_speed = ((msg[0] << 8) | msg[1]) / 1000;
-//     current_Error = ((msg[2] << 8) | msg[3]);
-//     current_Front = ((msg[4] << 8) | msg[5]);
-//     console.log(current_speed, current_Error, current_Front)
-//     // response = Buffer.from('g')
-//     console.log(info.address)
-//     message = new Buffer(stop);
-//     console.log(info.port, info.address);
-//     portOfESP = info.port;
-//     server.send(JSON.stringify(stop), info.port, info.address, (err) => {
-//         console.log("no conection")
-//     });
-
-// });
-
-// server.on('error', function (error) {
-//     console.log('Error: ' + error);
-//     server.close();
-// });
+parser.on('data', function (data){
+    console.log('Data: ', data)
+    var parsedData = JSON.parse(data);
+    acceleration = parsedData.a;
+    orientation = parsedData.o;
+    temperature = parsedData.t;
+    ambientLight = parsedData.l;
+    salinity = parsedData.s;
+    dissolvedOxygen = parsedData.d;
+    depth = parsedData.p;
+    // console.log(acceleration);
+})
