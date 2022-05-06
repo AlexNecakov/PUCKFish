@@ -1,87 +1,93 @@
 body {
     /* background-color: #b1bfd8;
     background-image: linear-gradient(315deg, #b1bfd8 0%, #6782b4 74%); */
-   background-image: url("back.gif"); /* The image used */
-   background-color: #cccccc; /* Used if the image is unavailable */
-   height: 555px; /* You must set a specified height */
-   background-position: center; /* Center the image */
-   background-repeat: no-repeat; /* Do not repeat the image */
-   background-size: cover
-  }
-  .title{
+    background-image: url("back.gif");
+    /* The image used */
+    background-color: #cccccc;
+    /* Used if the image is unavailable */
+    height: 555px;
+    /* You must set a specified height */
+    background-position: center;
+    /* Center the image */
+    background-repeat: no-repeat;
+    /* Do not repeat the image */
+    background-size: cover
+}
+
+.title {
     position: absolute;
     top: 0%;
     right: 0%;
-    width: 60%;
-    height: 10%;
-    /* background-color: red; */
-  }
-  .graphs{
+    width: 100%;
+    height: 5%;
+    display: flex;
+    justify-content: center;
+}
+
+.logo {
+    height: 200%;
+}
+
+.graphs {
     position: absolute;
-    top: 0%;
+    top: 15%;
     right: 0%;
     width: 100%;
     height: 80%;
-    /* background-color: blue; */
-  }
-  .gT{
+}
+
+.gT {
     position: absolute;
     top: 0%;
-    right: 70%;
-    width: 30%;
+    right: 76%;
+    width: 24%;
     height: 45%;
-    /* background-color: red; */
-  }
-  .gL{
+}
+
+.gL {
     position: absolute;
     top: 0%;
-    right: 35%;
-    width: 30%;
+    right: 51%;
+    width: 24%;
     height: 45%;
-    /* background-color: red; */
-  }
-  .gS{
+}
+
+.gS {
+    position: absolute;
+    top: 0%;
+    right: 25%;
+    width: 24%;
+    height: 45%;
+}
+
+.gD {
     position: absolute;
     top: 0%;
     right: 0%;
-    width: 30%;
+    width: 24%;
     height: 45%;
-    /* background-color: red; */
-  }
-  .gD{
+}
+
+.gA {
     position: absolute;
     top: 50%;
-    right: 70%;
-    width: 30%;
-    height: 45%;
-    /* background-color: red; */
-  }
-  .gP{
+    right: 68%;
+    width: 32%;
+    height: 50%;
+}
+
+.gP {
     position: absolute;
     top: 50%;
-    right: 35%;
-    width: 30%;
-    height: 45%;
-    /* background-color: red; */
-  }
-  .gA{
-    position: absolute;
-    top: 50%;
-    right: 0%;
-    width: 30%;
-    height: 45%;
-    /* background-color: red; */
-  }
-  .gO{
+    right: 34%;
+    width: 32%;
+    height: 50%;
+}
+
+.gO {
     position: absolute;
     top: 50%;
     right: 0%;
-    width: 30%;
-    height: 45%;
-    /* background-color: red; */
-  }
-  .bimg{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-  }
+    width: 32%;
+    height: 50%;
+}
