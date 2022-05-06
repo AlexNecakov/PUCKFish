@@ -16,30 +16,6 @@ body {
     height: 10%;
     /* background-color: red; */
   }
-  .coolGraphic{
-    position: absolute;
-    top: 27%;
-    right: 20% ;
-    width: 60%;
-    height: 5%;
-    /* background-color: green; */
-  }
-  .cg1{
-    position: absolute;
-    top: 5%;
-    right: 60% ;
-    width: 20%;
-    height: 90%;
-    /* background-color: red; */
-  }
-  .cg2{
-    position: absolute;
-    top: 5%;
-    right: 20% ;
-    width: 20%;
-    height: 90%;
-    /* background-color: red; */
-  }
   .graphs{
     position: absolute;
     top: 35%;
@@ -71,14 +47,6 @@ body {
     width: 25%;
     height: 95%;
     /* background-color: red; */
-  }
-  .button{
-    position: absolute;
-    top: 55%;
-    right: 2%;
-    width: 10%;
-    height: 15%;
-    /* background-color: grey; */
   }
   .bimg{
     position: absolute;

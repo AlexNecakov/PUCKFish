@@ -2,13 +2,11 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const serialport = require('serialport');
 const SerialPort = serialport.SerialPort;
-const { ReadlineParser } = require('@serialport/parser-readline')
+const { ReadlineParser } = require('@serialport/parser-readline');
+const { json } = require("express");
 const app = express();
 
-var appPort = 6969;
-var current_speed = 0;
-var current_Error = 0;
-var current_Front = 0;
+var appPort = 8000;
 
 var timeStamp = 0;
 var acceleration = [0, 0, 0];
@@ -45,26 +43,15 @@ app.get("/data", async (req, res) => {
     res.sendFile(__dirname + "/source.js");
     res.sendFile(__dirname + "/styles.css");
 
-    res.end(JSON.stringify([timeStamp, acceleration, orientation, temperature, ambientLight, salinity, dissolvedOxygen, depth]));
+    var jsonString = JSON.stringify([timeStamp, acceleration, orientation, temperature, ambientLight, salinity, dissolvedOxygen, depth]);
+    console.log('Sending: ', jsonString);
+    res.end(jsonString);
 });
 
-// // Read data that is available but keep the stream in "paused mode"
-// port.on('readable', function () {
-//     console.log('Data:', port.read())
-// })
-
-// Switches the port into "flowing mode"
-// port.on('data', function (data) {
-//     console.log('Data:', data)
-// })
-
 parser.on('data', function (data) {
-    console.log('Data: ', data)
+    // console.log('Received: ', data)
     var parsedData = JSON.parse(data);
 
-    //funky stuff to get timestamp key
-    var keys = Object.keys(parsedData);
-    var hash = '#';
     timeStamp = parsedData["#"];
     acceleration = parsedData.a;
     orientation = parsedData.o;
@@ -73,4 +60,4 @@ parser.on('data', function (data) {
     salinity = parsedData.s;
     dissolvedOxygen = parsedData.d;
     depth = parsedData.p;
-})
+});
