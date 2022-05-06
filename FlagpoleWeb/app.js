@@ -3,10 +3,10 @@ const bodyParser = require('body-parser');
 const serialport = require('serialport');
 const SerialPort = serialport.SerialPort;
 const { ReadlineParser } = require('@serialport/parser-readline');
-const { json } = require("express");
 const app = express();
 
 var appPort = 8000;
+var serialPath = 'COM10';
 
 var timeStamp = 0;
 var acceleration = [0, 0, 0];
@@ -19,7 +19,7 @@ var depth = 0;
 
 // change the path field here to the correct serial port
 const port = new SerialPort({
-    path: 'COM10',
+    path: serialPath,
     baudRate: 9600
 });
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }))
