@@ -96,16 +96,19 @@ function drawAcceleration() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Acceleration X: </b>{y} m/s^2",
             dataPoints: dataX,
-            color: "red"
+            color: "mediumseagreen"
         }, {
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Acceleration Y: </b>{y} m/s^2",
             dataPoints: dataY,
-            color: "blue"
+            color: "mediumturquoise"
         }, {
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Acceleration Z: </b>{y} m/s^2",
             dataPoints: dataZ,
-            color: "green"
+            color: "mediumblue"
         }]
     });
     chart.render();
@@ -144,16 +147,19 @@ function drawOrientation() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Orientation X: </b>{y} rad/s",
             dataPoints: dataX,
-            color: "red"
+            color: "lightseagreen"
         }, {
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Orientation Y: </b>{y} rad/s",
             dataPoints: dataY,
-            color: "blue"
+            color: "lightskyblue"
         }, {
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Orientation Z: </b>{y} rad/s",
             dataPoints: dataZ,
-            color: "green"
+            color: "mediumaquamarine"
         }]
     });
     chart.render();
@@ -180,8 +186,9 @@ function drawTemperature() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Temperature: </b>{y} C",
             dataPoints: data,
-            color: "red"
+            color: "dodgerblue"
         }]
     });
     chart.render();
@@ -208,8 +215,9 @@ function drawAmbientLight() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Ambient Light: </b>{y} lux",
             dataPoints: data,
-            color: "orange"
+            color: "darkturquoise"
         }]
     });
     chart.render();
@@ -236,8 +244,9 @@ function drawSalinity() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Salinity: </b>{y} ppt",
             dataPoints: data,
-            color: "pink"
+            color: "cornflowerblue"
         }]
     });
     chart.render();
@@ -260,12 +269,13 @@ function drawDissolvedOxygen() {
             title: "Time (seconds)"
         },
         axisY: {
-            title: "Percent Saturation (%)",
+            title: "Oxygen Saturation (%)",
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Oxygen Saturation: </b>{y}%",
             dataPoints: data,
-            color: "blue"
+            color: "royalblue"
         }]
     });
     chart.render();
@@ -292,8 +302,9 @@ function drawPressure() {
         },
         data: [{
             type: "scatter",
+            toolTipContent: "<b>Time: </b>{x} sec<br/><b>Depth: </b>{y} m",
             dataPoints: data,
-            color: "green"
+            color: "midnightblue"
         }]
     });
     chart.render();
