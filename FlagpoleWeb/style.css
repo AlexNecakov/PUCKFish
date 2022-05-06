@@ -10,42 +10,58 @@ body {
   }
   .title{
     position: absolute;
-    top: 10%;
-    right: 20%;
+    top: 0%;
+    right: 0%;
     width: 60%;
     height: 10%;
     /* background-color: red; */
   }
   .graphs{
     position: absolute;
-    top: 35%;
-    right: 15%;
-    width: 70%;
-    height: 60%;
+    top: 10%;
+    right: 0%;
+    width: 100%;
+    height: 80%;
     /* background-color: blue; */
   }
-  .g1{
+  .gT{
     position: absolute;
-    top: 2%;
-    right: 2%;
-    width: 70%;
+    top: 0%;
+    right: 70%;
+    width: 30%;
     height: 45%;
     /* background-color: red; */
   }
-  .g2{
+  .gL{
     position: absolute;
-    top: 52%;
-    right: 2%;
-    width: 70%;
+    top: 0%;
+    right: 35%;
+    width: 30%;
     height: 45%;
     /* background-color: red; */
   }
-  .g3{
+  .gS{
     position: absolute;
-    top: 2%;
-    right: 74%;
-    width: 25%;
-    height: 95%;
+    top: 0%;
+    right: 0%;
+    width: 30%;
+    height: 45%;
+    /* background-color: red; */
+  }
+  .gD{
+    position: absolute;
+    top: 50%;
+    right: 80%;
+    width: 30%;
+    height: 45%;
+    /* background-color: red; */
+  }
+  .gP{
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 30%;
+    height: 45%;
     /* background-color: red; */
   }
   .bimg{

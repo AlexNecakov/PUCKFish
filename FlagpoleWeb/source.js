@@ -12,6 +12,10 @@ var clearTime = 1000;
 
 window.onload = async function () {
     drawTemperature();
+    drawAmbientLight();
+    drawSalinity();
+    drawDissolvedOxygen();
+    drawPressure();
 }
 
 const fetchs = setInterval(async function () {
@@ -29,20 +33,24 @@ const fetchs = setInterval(async function () {
         depth = [];
     }
 
-    timeStamp.push(vals[0]);
-    // acceleration[0].push(vals["acceleration"][0]);
-    // acceleration[1].push(vals["acceleration"][1]);
-    // acceleration[2].push(vals["acceleration"][2]);
-    // orientation[0].push(vals["orientation"][0]);
-    // orientation[1].push(vals["orientation"][1]);
-    // orientation[2].push(vals["orientation"][2]);
+    timeStamp.push(vals[0]/1000);
+    acceleration[0].push(vals[1][0]);
+    acceleration[1].push(vals[1][1]);
+    acceleration[2].push(vals[1][2]);
+    orientation[0].push(vals[2][0]);
+    orientation[1].push(vals[2][1]);
+    orientation[2].push(vals[2][2]);
     temperature.push(vals[3]);
-    // ambientLight.push(vals["ambientLight"]);
-    // salinity.push(vals["salinity"]);
-    // dissolvedOxygen.push(vals["dissolvedOxygen"]);
-    // depth.push(vals["depth"]);
-    console.log(timeStamp);
+    ambientLight.push(vals[4]);
+    salinity.push(vals[5]);
+    dissolvedOxygen.push(vals[6]);
+    depth.push(vals[7]);
+    
     drawTemperature();
+    drawAmbientLight();
+    drawSalinity();
+    drawDissolvedOxygen();
+    drawPressure();
 
 }, queryTime);
 
@@ -52,23 +60,135 @@ async function getData() {
 }
 
 function drawTemperature() {
-    var chart = new CanvasJS.Chart("graph1", {
+    var data = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: temperature[i] };
+        data.push(obj)
+    }
+    data.sort();
+
+    var chart = new CanvasJS.Chart("graphT", {
         animationEnabled: false,
         title: {
             text: "Temperature"
         },
         axisX: {
-            title: "Time"
+            title: "Time (seconds)"
         },
         axisY: {
-            title: "Temperature",
+            title: "Temperature (C)",
         },
         data: [{
-            type: "line",
-            dataPoints: [
-                { x: timeStamp },
-                { y: temperature }
-            ],
+            type: "scatter",
+            dataPoints: data,
+        }]
+    });
+    chart.render();
+}
+
+function drawAmbientLight() {
+    var data = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: ambientLight[i] };
+        data.push(obj)
+    }
+    data.sort();
+
+    var chart = new CanvasJS.Chart("graphL", {
+        animationEnabled: false,
+        title: {
+            text: "Ambient Light"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Ambient Light (Lux)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: data,
+        }]
+    });
+    chart.render();
+}
+
+function drawSalinity() {
+    var data = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: salinity[i] };
+        data.push(obj)
+    }
+    data.sort();
+
+    var chart = new CanvasJS.Chart("graphS", {
+        animationEnabled: false,
+        title: {
+            text: "Salinity"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Salinity (ppt)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: data,
+        }]
+    });
+    chart.render();
+}
+
+function drawDissolvedOxygen() {
+    var data = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: dissolvedOxygen[i] };
+        data.push(obj)
+    }
+    data.sort();
+
+    var chart = new CanvasJS.Chart("graphD", {
+        animationEnabled: false,
+        title: {
+            text: "Dissolved Oxygen"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Percent Saturation (%)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: data,
+        }]
+    });
+    chart.render();
+}
+
+function drawPressure() {
+    var data = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: depth[i] };
+        data.push(obj)
+    }
+    data.sort();
+
+    var chart = new CanvasJS.Chart("graphP", {
+        animationEnabled: false,
+        title: {
+            text: "Depth"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Depth (m)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: data,
         }]
     });
     chart.render();
