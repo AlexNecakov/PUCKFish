@@ -17,6 +17,7 @@ var salinity = 0;
 var dissolvedOxygen = 0;
 var depth = 0;
 
+// change the path field here to the correct serial port
 const port = new SerialPort({
     path: 'COM10',
     baudRate: 9600

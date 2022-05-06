@@ -8,9 +8,11 @@ var dissolvedOxygen = [];
 var depth = [];
 
 var queryTime = 1000;
-var clearTime = 1000;
+var clearTime = 500;
 
 window.onload = async function () {
+    drawAcceleration();
+    drawOrientation();
     drawTemperature();
     drawAmbientLight();
     drawSalinity();
@@ -33,7 +35,7 @@ const fetchs = setInterval(async function () {
         depth = [];
     }
 
-    timeStamp.push(vals[0]/1000);
+    timeStamp.push(vals[0] / 1000);
     acceleration[0].push(vals[1][0]);
     acceleration[1].push(vals[1][1]);
     acceleration[2].push(vals[1][2]);
@@ -45,7 +47,9 @@ const fetchs = setInterval(async function () {
     salinity.push(vals[5]);
     dissolvedOxygen.push(vals[6]);
     depth.push(vals[7]);
-    
+
+    drawAcceleration();
+    drawOrientation();
     drawTemperature();
     drawAmbientLight();
     drawSalinity();
@@ -57,6 +61,102 @@ const fetchs = setInterval(async function () {
 async function getData() {
     const response = await fetch("/data");
     return response.json();
+}
+
+function drawAcceleration() {
+    var dataX = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: acceleration[0][i] };
+        dataX.push(obj)
+    }
+    dataX.sort();
+    var dataY = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: acceleration[1][i] };
+        dataY.push(obj)
+    }
+    dataY.sort();
+    var dataZ = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: acceleration[2][i] };
+        dataZ.push(obj)
+    }
+    dataZ.sort();
+
+    var chart = new CanvasJS.Chart("graphA", {
+        animationEnabled: false,
+        title: {
+            text: "Acceleration"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Acceleration (m/s^2)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: dataX,
+            color: "red"
+        }, {
+            type: "scatter",
+            dataPoints: dataY,
+            color: "blue"
+        }, {
+            type: "scatter",
+            dataPoints: dataZ,
+            color: "green"
+        }]
+    });
+    chart.render();
+}
+
+function drawOrientation() {
+    var dataX = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: orientation[0][i] };
+        dataX.push(obj)
+    }
+    dataX.sort();
+    var dataY = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: orientation[1][i] };
+        dataY.push(obj)
+    }
+    dataY.sort();
+    var dataZ = [];
+    for (var i = 0; i < timeStamp.length; i++) {
+        var obj = { x: timeStamp[i], y: orientation[2][i] };
+        dataZ.push(obj)
+    }
+    dataZ.sort();
+
+    var chart = new CanvasJS.Chart("graphO", {
+        animationEnabled: false,
+        title: {
+            text: "Orientation"
+        },
+        axisX: {
+            title: "Time (seconds)"
+        },
+        axisY: {
+            title: "Orientation (rad/s)",
+        },
+        data: [{
+            type: "scatter",
+            dataPoints: dataX,
+            color: "red"
+        }, {
+            type: "scatter",
+            dataPoints: dataY,
+            color: "blue"
+        }, {
+            type: "scatter",
+            dataPoints: dataZ,
+            color: "green"
+        }]
+    });
+    chart.render();
 }
 
 function drawTemperature() {
@@ -81,6 +181,7 @@ function drawTemperature() {
         data: [{
             type: "scatter",
             dataPoints: data,
+            color: "red"
         }]
     });
     chart.render();
@@ -108,6 +209,7 @@ function drawAmbientLight() {
         data: [{
             type: "scatter",
             dataPoints: data,
+            color: "orange"
         }]
     });
     chart.render();
@@ -135,6 +237,7 @@ function drawSalinity() {
         data: [{
             type: "scatter",
             dataPoints: data,
+            color: "pink"
         }]
     });
     chart.render();
@@ -162,6 +265,7 @@ function drawDissolvedOxygen() {
         data: [{
             type: "scatter",
             dataPoints: data,
+            color: "blue"
         }]
     });
     chart.render();
@@ -189,6 +293,7 @@ function drawPressure() {
         data: [{
             type: "scatter",
             dataPoints: data,
+            color: "green"
         }]
     });
     chart.render();

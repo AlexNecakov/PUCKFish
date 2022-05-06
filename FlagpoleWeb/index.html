@@ -2,18 +2,21 @@
 <html lang="en" dir="ltr">
 
 <head>
-    <title>PUCKFish</title>
+    <title>PUCKFish Data Monitor</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css">
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script src="source.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 </head>
 
 <body>
-    <div class="title" id="hbox">
-        <h1>PUCKFish Data Monitor </h1>
-    </div>
     <div class="graphs">
+        <div class="gA" id="graphA"></div>
+        <div class="gO" id="graphO"></div>
         <div class="gT" id="graphT"></div>
         <div class="gL" id="graphL"></div>
         <div class="gS" id="graphS"></div>
